@@ -84,6 +84,47 @@ local function CreateOptionsPanel()
         print("|cff00ff00ABV:|r Visibility set to: " .. AssistantButtonVisualizerDB.visibility)
     end)
     
+
+
+    -- Opacity Slider
+    local opacityLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    opacityLabel:SetPoint("TOPLEFT", visibilityLabel, "BOTTOMLEFT", 0, -40)
+    opacityLabel:SetText("Opacity")
+
+    local slider = CreateFrame("Slider", "AssistantButton_OpacitySlider", panel, "OptionsSliderTemplate")
+    slider:SetPoint("LEFT", opacityLabel, "RIGHT", 20, 0)
+    slider:SetWidth(200)
+    slider:SetHeight(20)
+    slider:SetMinMaxValues(0.1, 1.0)
+    slider:SetValueStep(0.1)
+    slider:SetObeyStepOnDrag(true)
+    
+    _G[slider:GetName() .. "Low"]:SetText("0.1")
+    _G[slider:GetName() .. "High"]:SetText("1.0")
+    
+    local valueLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    valueLabel:SetPoint("LEFT", slider, "RIGHT", 10, 0)
+    slider.ValueLabel = valueLabel
+
+    slider:SetScript("OnShow", function(self)
+        local val = AssistantButtonVisualizerDB.alpha or 0.3
+        self:SetValue(val)
+        if self.ValueLabel then
+            self.ValueLabel:SetText(string.format("%d%%", val * 100))
+        end
+    end)
+    
+    slider:SetScript("OnValueChanged", function(self, value)
+        -- Round to 1 decimal place to avoid floating point weirdness
+        value = math.floor(value * 10 + 0.5) / 10
+        if AssistantButton_SetAlpha then
+            AssistantButton_SetAlpha(value)
+        end
+        if self.ValueLabel then
+            self.ValueLabel:SetText(string.format("%d%%", value * 100))
+        end
+    end)
+    
     -- Register the panel with the standard Interface Options
     if Settings and Settings.RegisterCanvasLayoutCategory then
         -- Dragonflight and later (10.0+)

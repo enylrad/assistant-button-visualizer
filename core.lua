@@ -5,7 +5,7 @@ local TARGET_SPELL_ID = 1229376
 
 local GHOST_SLOT = 88 
 local FRAME_SIZE = 64
-local BASE_ALPHA = 0.3 
+local FRAME_SIZE = 64
 local UPDATE_INTERVAL = 0.1
 
 -- ============================================================================
@@ -19,7 +19,8 @@ local function InitializeDatabase()
             x = 0, 
             y = 0,
             locked = false,
-            visibility = "ALWAYS" -- "ALWAYS" or "COMBAT"
+            visibility = "ALWAYS", -- "ALWAYS" or "COMBAT"
+            alpha = 0.3
         }
     end
 end
@@ -40,6 +41,16 @@ function AssistantButton_SetLock(locked)
         ABV_MainFrame:EnableMouse(true)
         ABV_MainFrame:SetMovable(true)
         print("|cff00ff00ABV:|r Frame Unlocked.")
+    end
+end
+
+-- Function to set the opacity
+function AssistantButton_SetAlpha(value)
+    if not AssistantButtonVisualizerDB then return end
+    AssistantButtonVisualizerDB.alpha = value
+    -- Apply immediately if frame exists
+    if ABV_MainFrame then
+        ABV_MainFrame:SetAlpha(value)
     end
 end
 
@@ -88,7 +99,7 @@ local function UpdateVisuals()
     if icon then
         mainFrame.texture:SetTexture(icon)
         mainFrame.texture:SetDesaturated(false)
-        mainFrame:SetAlpha(BASE_ALPHA) 
+        mainFrame:SetAlpha(AssistantButtonVisualizerDB.alpha or 0.3) 
         mainFrame:Show()
     else
         -- Render a placeholder if the slot is empty or not loaded yet.
@@ -171,6 +182,11 @@ mainFrame:SetScript("OnEvent", function(self, event)
         -- Apply lock state
         if AssistantButtonVisualizerDB.locked then
             AssistantButton_SetLock(true)
+        end
+        
+        -- Restore alpha
+        if AssistantButtonVisualizerDB.alpha then
+             self:SetAlpha(AssistantButtonVisualizerDB.alpha)
         end
     elseif event == "PLAYER_REGEN_DISABLED" then
         -- Combat started. Show frame immediately to ensure OnUpdate loop runs
