@@ -17,8 +17,28 @@ local function InitializeDatabase()
             point = "CENTER", 
             relativePoint = "CENTER", 
             x = 0, 
-            y = 0 
+            y = 0,
+            locked = false
         }
+    end
+end
+
+-- ============================================================================
+-- GLOBAL API
+-- ============================================================================
+
+-- Function to lock/unlock the frame
+function AssistantButton_SetLock(locked)
+    if not ABV_MainFrame then return end
+    
+    if locked then
+        ABV_MainFrame:EnableMouse(false)
+        ABV_MainFrame:SetMovable(false)
+        print("|cff00ff00ABV:|r Frame Locked.")
+    else
+        ABV_MainFrame:EnableMouse(true)
+        ABV_MainFrame:SetMovable(true)
+        print("|cff00ff00ABV:|r Frame Unlocked.")
     end
 end
 
@@ -137,6 +157,11 @@ mainFrame:SetScript("OnEvent", function(self, event)
         
         -- Delay installation to ensure Spellbook is fully loaded.
         C_Timer.After(2, InstallSpellToSlot)
+
+        -- Apply lock state
+        if AssistantButtonVisualizerDB.locked then
+            AssistantButton_SetLock(true)
+        end
     end
 end)
 

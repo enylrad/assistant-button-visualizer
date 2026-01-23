@@ -6,3 +6,4 @@
 ## SavedVariables: AssistantButtonVisualizerDB
 
 core.lua
+options.lua
