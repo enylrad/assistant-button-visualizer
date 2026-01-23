@@ -149,6 +149,8 @@ end)
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")
 mainFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+mainFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+mainFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 mainFrame:SetScript("OnEvent", function(self, event)
     if event == "PLAYER_LOGIN" then
         InitializeDatabase()
@@ -174,6 +176,10 @@ mainFrame:SetScript("OnEvent", function(self, event)
         -- Combat started. Show frame immediately to ensure OnUpdate loop runs
         -- and can evaluate the visibility logic (which checks InCombatLockdown).
         self:Show()
+    elseif event == "PLAYER_SPECIALIZATION_CHANGED" or event == "TRAIT_CONFIG_UPDATED" then
+        -- Re-install spell when talents or specialization change.
+        -- We add a small delay to ensure the spellbook has processed the changes.
+        C_Timer.After(1, InstallSpellToSlot)
     end
 end)
 
