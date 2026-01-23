@@ -42,6 +42,47 @@ local function CreateOptionsPanel()
             AssistantButton_SetLock(isLocked)
         end
     end)
+
+    -- Visibility Mode Label
+    local visibilityLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    visibilityLabel:SetPoint("TOPLEFT", lockButton, "BOTTOMLEFT", 0, -20)
+    visibilityLabel:SetText("Visibility Mode")
+
+    -- Visibility Mode Cycle Button
+    local visibilityBtn = CreateFrame("Button", "AssistantButton_VisibilityBtn", panel, "UIMenuButtonStretchTemplate")
+    visibilityBtn:SetPoint("LEFT", visibilityLabel, "RIGHT", 20, 0)
+    visibilityBtn:SetSize(120, 24)
+    visibilityBtn:SetText(AssistantButtonVisualizerDB and AssistantButtonVisualizerDB.visibility == "COMBAT" and "In Combat" or "Always")
+
+    -- Function to update button text based on DB
+    local function UpdateVisibilityButtonText()
+        if AssistantButtonVisualizerDB.visibility == "COMBAT" then
+            visibilityBtn:SetText("In Combat")
+        else
+            visibilityBtn:SetText("Always")
+        end
+    end
+
+    visibilityBtn:SetScript("OnShow", function(self)
+         -- Ensure DB is loaded (though it should be by the time options are opened)
+        if not AssistantButtonVisualizerDB.visibility then AssistantButtonVisualizerDB.visibility = "ALWAYS" end
+        UpdateVisibilityButtonText()
+    end)
+
+    visibilityBtn:SetScript("OnClick", function(self)
+        if AssistantButtonVisualizerDB.visibility == "ALWAYS" then
+            AssistantButtonVisualizerDB.visibility = "COMBAT"
+        else
+            AssistantButtonVisualizerDB.visibility = "ALWAYS"
+        end
+        UpdateVisibilityButtonText()
+        
+        -- Force Show the main frame to restart its OnUpdate loop 
+        -- so it can re-evaluate visibility immediately.
+        if ABV_MainFrame then ABV_MainFrame:Show() end
+        
+        print("|cff00ff00ABV:|r Visibility set to: " .. AssistantButtonVisualizerDB.visibility)
+    end)
     
     -- Register the panel with the standard Interface Options
     if Settings and Settings.RegisterCanvasLayoutCategory then

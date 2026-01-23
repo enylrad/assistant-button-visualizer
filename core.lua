@@ -18,7 +18,8 @@ local function InitializeDatabase()
             relativePoint = "CENTER", 
             x = 0, 
             y = 0,
-            locked = false
+            locked = false,
+            visibility = "ALWAYS" -- "ALWAYS" or "COMBAT"
         }
     end
 end
@@ -75,6 +76,12 @@ end)
 
 -- Updates the visual representation based on the hidden action slot state.
 local function UpdateVisuals()
+    -- Check Visibility Check
+    if AssistantButtonVisualizerDB.visibility == "COMBAT" and not InCombatLockdown() then
+        mainFrame:Hide()
+        return
+    end
+
     -- GetActionTexture is safe to call on protected buttons.
     local icon = GetActionTexture(GHOST_SLOT)
     
@@ -141,6 +148,7 @@ mainFrame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")
+mainFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 mainFrame:SetScript("OnEvent", function(self, event)
     if event == "PLAYER_LOGIN" then
         InitializeDatabase()
@@ -162,6 +170,10 @@ mainFrame:SetScript("OnEvent", function(self, event)
         if AssistantButtonVisualizerDB.locked then
             AssistantButton_SetLock(true)
         end
+    elseif event == "PLAYER_REGEN_DISABLED" then
+        -- Combat started. Show frame immediately to ensure OnUpdate loop runs
+        -- and can evaluate the visibility logic (which checks InCombatLockdown).
+        self:Show()
     end
 end)
 
