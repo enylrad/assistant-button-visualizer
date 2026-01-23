@@ -4,6 +4,7 @@
 ## Author: Enylrad
 ## Version: 0.1
 ## SavedVariables: AssistantButtonVisualizerDB
+## Category: User Interface
 
 core.lua
 options.lua
