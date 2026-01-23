@@ -1,0 +1,8 @@
+## Interface: 120000
+## Title: AssistantButton
+## Notes: Shows the Single-Button Assistant icon without using an Action Bar slot.
+## Author: Enylrad
+## Version: 0.1
+## SavedVariables: ASISBTN
+
+core.lua
