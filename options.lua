@@ -2,14 +2,14 @@
 -- OPTIONS PANEL
 -- ============================================================================
 
-local ADDON_NAME = "AssistantButton"
-local PANEL_NAME = "AssistantButtonOptions"
+local ADDON_NAME = "AssistantButtonVisualizer"
+local PANEL_NAME = "AssistantButtonVisualizerOptions"
 
 -- Function to create the options panel
 local function CreateOptionsPanel()
     -- Create a frame for the options panel
     local panel = CreateFrame("Frame", PANEL_NAME)
-    panel.name = "AssistantButton" -- This name appears in the Addon list
+    panel.name = "Assistant Button Visualizer" -- This name appears in the Addon list
     
     -- Title
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
