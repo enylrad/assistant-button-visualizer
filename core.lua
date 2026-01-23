@@ -1,12 +1,11 @@
 -- ============================================================================
 -- CONFIGURATION & CONSTANTS
 -- ============================================================================
--- NOTE: If the client language is not English, change this value to the localized spell name.
--- Example for Spanish: "Asistente de botón único"
-local SPELL_NAME = "Single-Button Assistant" 
+local TARGET_SPELL_ID = 1229376 
+
 local GHOST_SLOT = 88 
 local FRAME_SIZE = 64
-local BASE_ALPHA = 0.7 
+local BASE_ALPHA = 0.3 
 local UPDATE_INTERVAL = 0.1
 
 -- ============================================================================
@@ -56,7 +55,7 @@ end)
 
 -- Updates the visual representation based on the hidden action slot state.
 local function UpdateVisuals()
-    -- GetActionTexture is safe to call on protected buttons (does not trigger 'Secret Value' errors).
+    -- GetActionTexture is safe to call on protected buttons.
     local icon = GetActionTexture(GHOST_SLOT)
     
     if icon then
@@ -73,24 +72,38 @@ local function UpdateVisuals()
 end
 
 -- Attempts to assign the spell to the hidden action slot.
+-- Checks if the spell is already there to avoid redundant writing.
 local function InstallSpellToSlot()
     if InCombatLockdown() then 
-        print("|cffFF0000ABV Error:|r Cannot modify action bars during combat.")
+        -- Silent return or debug print during development
         return 
     end
 
-    local spellInfo = C_Spell.GetSpellInfo(SPELL_NAME)
+    -- 1. Check what is currently in the slot.
+    -- GetActionInfo returns: type, id, subType
+    local actionType, actionID = GetActionInfo(GHOST_SLOT)
+
+    -- 2. If the correct spell is already there, do nothing.
+    if actionType == "spell" and actionID == TARGET_SPELL_ID then
+        -- The spell is already installed correctly. Exit function.
+        return
+    end
+
+    -- 3. If we are here, the slot is empty or has the wrong spell. Attempt to install.
+    local spellInfo = C_Spell.GetSpellInfo(TARGET_SPELL_ID)
     
     if spellInfo and spellInfo.spellID then
         C_Spell.PickupSpell(spellInfo.spellID)
         
+        -- Verify cursor has the spell before placing
         if GetCursorInfo() then
             PlaceAction(GHOST_SLOT)
             ClearCursor()
-            -- Installation successful; silent execution to avoid chat spam on login.
+            print("|cff00ff00ABV:|r Spell installed to slot " .. GHOST_SLOT)
         end
     else
-        -- Silent fail is preferred during login; use slash command for debug.
+        -- Only print error if manually triggered or debugging, to avoid login spam if ID is wrong
+        -- print("|cffFF0000ABV Error:|r Invalid Spell ID or spell not learned.")
     end
 end
 
@@ -122,8 +135,6 @@ mainFrame:SetScript("OnEvent", function(self, event)
             AssistantButtonVisualizerDB.y or 0
         )
         
-        print("|cff00ff00Assistant Button Visualizer:|r Loaded. Initializing...")
-        
         -- Delay installation to ensure Spellbook is fully loaded.
         C_Timer.After(2, InstallSpellToSlot)
     end
@@ -148,12 +159,12 @@ SlashCmdList["ABV"] = function(msg)
         print("|cff00ff00ABV:|r Position reset to center.")
         
     elseif cmd == "install" then
-        print("|cff00ff00ABV:|r Attempting manual installation...")
+        print("|cff00ff00ABV:|r Forcing manual check/installation...")
         InstallSpellToSlot()
         
     else
         print("|cff00ff00ABV Commands:|r")
         print("/abv reset   - Resets the frame position to the center.")
-        print("/abv install - Manually forces the spell installation to slot " .. GHOST_SLOT .. ".")
+        print("/abv install - Checks slot " .. GHOST_SLOT .. " and installs the spell if missing.")
     end
 end
