@@ -2,7 +2,7 @@
 
 ## English
 
-**Assistant Button Visualizer** is a World of Warcraft addon designed to help you visualize a specific rotation button (the "Assistant Button" provided by Blizzard's internal tools or similar setups) anywhere on your screen. 
+**Assistant Button Visualizer** is a World of Warcraft addon designed to help you visualize a specific rotation with Assistant Blizzard Button reference anywhere on your screen. 
 
 It mirrors a specific action bar slot ensuring you can place your rotation helper exactly where you need it, without moving your main action bars.
 
@@ -30,7 +30,7 @@ You can configure the addon via the Interface Options menu:
 
 ## Español
 
-**Assistant Button Visualizer** es un addon de World of Warcraft diseñado para mostrar una vista previa del "Assistant Button" (Botón Asistente) para colocar tu rotación en el lugar de la pantalla que prefieras.
+**Assistant Button Visualizer** es un addon de World of Warcraft diseñado para ayudarte a visualizar una rotación específica utilizando el Botón Asistente de Blizzard como referencia en cualquier lugar de tu pantalla.
 
 El addon replica una casilla específica de la barra de acción, permitiéndote colocar tu ayuda de rotación exactamente donde la necesites, sin tener que mover tus barras de acción principales.
 
