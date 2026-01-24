@@ -77,7 +77,6 @@ function AssistantButton_SetSize(value)
 end
 
 -- Function to set the action slot
--- Function to set the action slot
 function AssistantButton_SetSlot(value)
     if not AssistantButtonVisualizerDB then return end
     
