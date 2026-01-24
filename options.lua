@@ -124,6 +124,76 @@ local function CreateOptionsPanel()
             self.ValueLabel:SetText(string.format("%d%%", value * 100))
         end
     end)
+
+    -- Action Slot Slider
+    local slotLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    slotLabel:SetPoint("TOPLEFT", opacityLabel, "BOTTOMLEFT", 0, -40)
+    slotLabel:SetText("Action Slot")
+
+    local slotSlider = CreateFrame("Slider", "AssistantButton_SlotSlider", panel, "OptionsSliderTemplate")
+    slotSlider:SetPoint("LEFT", slotLabel, "RIGHT", 20, 0)
+    slotSlider:SetWidth(200)
+    slotSlider:SetHeight(20)
+    slotSlider:SetMinMaxValues(1, 120)
+    slotSlider:SetValueStep(1)
+    slotSlider:SetObeyStepOnDrag(true)
+    slotSlider.tooltipText = "Select the action slot (1-120) where the ability will be placed.\nCommon slots:\nBar 1: 1-12\nBar 2: 13-24\nBar 3: 25-36\nBar 4: 37-48\nBar 5: 49-60\nBar 6: 61-72"
+    
+    _G[slotSlider:GetName() .. "Low"]:SetText("1")
+    _G[slotSlider:GetName() .. "High"]:SetText("120")
+    
+    local slotValueLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    slotValueLabel:SetPoint("LEFT", slotSlider, "RIGHT", 10, 0)
+    slotSlider.ValueLabel = slotValueLabel
+
+
+    slotSlider:SetScript("OnShow", function(self)
+        local val = AssistantButtonVisualizerDB.slot or 88
+        self:SetValue(val)
+        if self.ValueLabel then
+            self.ValueLabel:SetText(tostring(val))
+        end
+    end)
+    
+    slotSlider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor(value + 0.5)
+        if self.ValueLabel then
+            self.ValueLabel:SetText(tostring(value))
+        end
+        
+        -- Update Apply button state
+        local currentSaved = AssistantButtonVisualizerDB.slot or 88
+        if value ~= currentSaved then
+            if panel.applyBtn then panel.applyBtn:Enable() end
+        else
+            if panel.applyBtn then panel.applyBtn:Disable() end
+        end
+    end)
+
+    -- Apply Button
+    local applyBtn = CreateFrame("Button", "AssistantButton_SlotApplyBtn", panel, "UIPanelButtonTemplate")
+    applyBtn:SetPoint("TOPLEFT", slotSlider, "BOTTOMLEFT", 0, -10)
+    applyBtn:SetSize(80, 22)
+    applyBtn:SetText("Apply")
+    applyBtn:Disable()
+    panel.applyBtn = applyBtn
+
+    applyBtn:SetScript("OnClick", function(self)
+        local value = math.floor(slotSlider:GetValue() + 0.5)
+        if AssistantButton_SetSlot then
+            AssistantButton_SetSlot(value)
+            print("|cff00ff00ABV:|r Applied new slot: " .. value)
+        end
+        self:Disable()
+    end)
+
+    -- Help description for slots
+    local slotHelp = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    slotHelp:SetPoint("TOPLEFT", applyBtn, "BOTTOMLEFT", 0, -16)
+    slotHelp:SetWidth(400)
+    slotHelp:SetJustifyH("LEFT")
+    slotHelp:SetText("Standard bars use 1-120. We recommend using a high slot (like 80+) that isn't on your visible bars to avoid overwriting your icons.")
+
     
     -- Register the panel with the standard Interface Options
     if Settings and Settings.RegisterCanvasLayoutCategory then

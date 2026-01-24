@@ -11,6 +11,9 @@ local UPDATE_INTERVAL = 0.1
 -- ============================================================================
 -- DATABASE INITIALIZATION
 -- ============================================================================
+-- ============================================================================
+-- DATABASE INITIALIZATION
+-- ============================================================================
 local function InitializeDatabase()
     if not AssistantButtonVisualizerDB then
         AssistantButtonVisualizerDB = { 
@@ -20,8 +23,13 @@ local function InitializeDatabase()
             y = 0,
             locked = false,
             visibility = "ALWAYS", -- "ALWAYS" or "COMBAT"
-            alpha = 0.3
+            alpha = 0.3,
+            slot = 88 -- Default hidden action slot
         }
+    end
+    -- Migration/Safety check for existing DBs
+    if not AssistantButtonVisualizerDB.slot then
+        AssistantButtonVisualizerDB.slot = 88
     end
 end
 
@@ -51,6 +59,19 @@ function AssistantButton_SetAlpha(value)
     -- Apply immediately if frame exists
     if ABV_MainFrame then
         ABV_MainFrame:SetAlpha(value)
+    end
+end
+
+-- Function to set the action slot
+function AssistantButton_SetSlot(value)
+    if not AssistantButtonVisualizerDB then return end
+    AssistantButtonVisualizerDB.slot = value
+    
+    -- Try to install to new slot immediately if not in combat
+    if not InCombatLockdown() then
+        InstallSpellToSlot()
+    else
+        print("|cff00ff00ABV:|r Slot changed to " .. value .. ". Re-installation pending combat end.")
     end
 end
 
@@ -93,8 +114,9 @@ local function UpdateVisuals()
         return
     end
 
+    local currentSlot = AssistantButtonVisualizerDB.slot or 88
     -- GetActionTexture is safe to call on protected buttons.
-    local icon = GetActionTexture(GHOST_SLOT)
+    local icon = GetActionTexture(currentSlot)
     
     if icon then
         mainFrame.texture:SetTexture(icon)
@@ -111,15 +133,17 @@ end
 
 -- Attempts to assign the spell to the hidden action slot.
 -- Checks if the spell is already there to avoid redundant writing.
-local function InstallSpellToSlot()
+function InstallSpellToSlot() -- Made global-ish for access from API
     if InCombatLockdown() then 
         -- Silent return or debug print during development
         return 
     end
 
+    local currentSlot = AssistantButtonVisualizerDB.slot or 88
+
     -- 1. Check what is currently in the slot.
     -- GetActionInfo returns: type, id, subType
-    local actionType, actionID = GetActionInfo(GHOST_SLOT)
+    local actionType, actionID = GetActionInfo(currentSlot)
 
     -- 2. If the correct spell is already there, do nothing.
     if actionType == "spell" and actionID == TARGET_SPELL_ID then
@@ -135,9 +159,9 @@ local function InstallSpellToSlot()
         
         -- Verify cursor has the spell before placing
         if GetCursorInfo() then
-            PlaceAction(GHOST_SLOT)
+            PlaceAction(currentSlot)
             ClearCursor()
-            print("|cff00ff00ABV:|r Spell installed to slot " .. GHOST_SLOT)
+            print("|cff00ff00ABV:|r Spell installed to slot " .. currentSlot)
         end
     else
         -- Only print error if manually triggered or debugging, to avoid login spam if ID is wrong
