@@ -2,7 +2,7 @@
 ## Title: Assistant Button Visualizer
 ## Notes: Real-time visual interface for the Assistant Button rotation logic.
 ## Author: Enylrad
-## Version: 0.1
+## Version: 1.0.0
 ## SavedVariables: AssistantButtonVisualizerDB
 ## Category: User Interface
 
