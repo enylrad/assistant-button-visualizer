@@ -4,6 +4,7 @@
 
 local ADDON_NAME = "AssistantButtonVisualizer"
 local PANEL_NAME = "AssistantButtonVisualizerOptions"
+local ABV_PREFIX = "|cff00ff00ABV:|r"
 
 -- Function to create the options panel
 local function CreateOptionsPanel()
@@ -81,7 +82,7 @@ local function CreateOptionsPanel()
         -- so it can re-evaluate visibility immediately.
         if ABV_MainFrame then ABV_MainFrame:Show() end
         
-        print("|cff00ff00ABV:|r Visibility set to: " .. AssistantButtonVisualizerDB.visibility)
+        print(ABV_PREFIX .. " Visibility set to: " .. AssistantButtonVisualizerDB.visibility)
     end)
     
 
@@ -182,7 +183,7 @@ local function CreateOptionsPanel()
         local value = math.floor(slotSlider:GetValue() + 0.5)
         if AssistantButton_SetSlot then
             AssistantButton_SetSlot(value)
-            print("|cff00ff00ABV:|r Applied new slot: " .. value)
+            print(ABV_PREFIX .. " Applied new slot: " .. value)
         end
         self:Disable()
     end)

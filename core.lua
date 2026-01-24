@@ -3,10 +3,10 @@
 -- ============================================================================
 local TARGET_SPELL_ID = 1229376 
 
-local GHOST_SLOT = 88 
-local FRAME_SIZE = 64
+local SLOT = 88 
 local FRAME_SIZE = 64
 local UPDATE_INTERVAL = 0.1
+local ABV_PREFIX = "|cff00ff00ABV:|r"
 
 -- ============================================================================
 -- DATABASE INITIALIZATION
@@ -44,11 +44,11 @@ function AssistantButton_SetLock(locked)
     if locked then
         ABV_MainFrame:EnableMouse(false)
         ABV_MainFrame:SetMovable(false)
-        print("|cff00ff00ABV:|r Frame Locked.")
+        print(ABV_PREFIX .. " Frame Locked.")
     else
         ABV_MainFrame:EnableMouse(true)
         ABV_MainFrame:SetMovable(true)
-        print("|cff00ff00ABV:|r Frame Unlocked.")
+        print(ABV_PREFIX .. " Frame Unlocked.")
     end
 end
 
@@ -71,7 +71,7 @@ function AssistantButton_SetSlot(value)
     if not InCombatLockdown() then
         InstallSpellToSlot()
     else
-        print("|cff00ff00ABV:|r Slot changed to " .. value .. ". Re-installation pending combat end.")
+        print(ABV_PREFIX .. " Slot changed to " .. value .. ". Re-installation pending combat end.")
     end
 end
 
@@ -161,7 +161,7 @@ function InstallSpellToSlot() -- Made global-ish for access from API
         if GetCursorInfo() then
             PlaceAction(currentSlot)
             ClearCursor()
-            print("|cff00ff00ABV:|r Spell installed to slot " .. currentSlot)
+            print(ABV_PREFIX .. " Spell installed to slot " .. currentSlot)
         end
     else
         -- Only print error if manually triggered or debugging, to avoid login spam if ID is wrong
@@ -178,7 +178,7 @@ mainFrame:SetScript("OnUpdate", function(self, elapsed)
     timer = timer + elapsed
     if timer >= UPDATE_INTERVAL then
         UpdateVisuals()
-        timer = 0
+        timer = timer - UPDATE_INTERVAL 
     end
 end)
 
@@ -239,15 +239,15 @@ SlashCmdList["ABV"] = function(msg)
         AssistantButtonVisualizerDB.x = 0
         AssistantButtonVisualizerDB.y = 0
         
-        print("|cff00ff00ABV:|r Position reset to center.")
+        print(ABV_PREFIX .. " Position reset to center.")
         
     elseif cmd == "install" then
-        print("|cff00ff00ABV:|r Forcing manual check/installation...")
+        print(ABV_PREFIX .. " Forcing manual check/installation...")
         InstallSpellToSlot()
         
     else
-        print("|cff00ff00ABV Commands:|r")
+        print(ABV_PREFIX .. " Commands:|r")
         print("/abv reset   - Resets the frame position to the center.")
-        print("/abv install - Checks slot " .. GHOST_SLOT .. " and installs the spell if missing.")
+        print("/abv install - Checks slot " .. SLOT .. " and installs the spell if missing.")
     end
 end
