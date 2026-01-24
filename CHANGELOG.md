@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-01-24
+
+### Added
+- **Icon Size Control:** New slider in options to configure the icon size (16px to 128px), defaulting to original size.
+
 ## [1.0.0] - 2026-01-24
 
 ### Added
@@ -21,6 +26,11 @@ All notable changes to this project will be documented in this file.
   - `/abv install`: Manually triggers spell installation.
 
 ---
+
+## [1.1.0] - 2026-01-24 (Español)
+
+### Añadido
+- **Control de Tamaño de Icono:** Nuevo deslizador en opciones para configurar el tamaño del icono (16px a 128px).
 
 ## [1.0.0] - 2026-01-24 (Español)
 

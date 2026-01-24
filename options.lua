@@ -126,9 +126,47 @@ local function CreateOptionsPanel()
         end
     end)
 
+    -- Icon Size Slider
+    local sizeLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    sizeLabel:SetPoint("TOPLEFT", opacityLabel, "BOTTOMLEFT", 0, -40)
+    sizeLabel:SetText("Icon Size")
+
+    local sizeSlider = CreateFrame("Slider", "AssistantButton_SizeSlider", panel, "OptionsSliderTemplate")
+    sizeSlider:SetPoint("LEFT", sizeLabel, "RIGHT", 20, 0)
+    sizeSlider:SetWidth(200)
+    sizeSlider:SetHeight(20)
+    sizeSlider:SetMinMaxValues(16, 128)
+    sizeSlider:SetValueStep(1)
+    sizeSlider:SetObeyStepOnDrag(true)
+
+    _G[sizeSlider:GetName() .. "Low"]:SetText("16")
+    _G[sizeSlider:GetName() .. "High"]:SetText("128")
+
+    local sizeValueLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    sizeValueLabel:SetPoint("LEFT", sizeSlider, "RIGHT", 10, 0)
+    sizeSlider.ValueLabel = sizeValueLabel
+
+    sizeSlider:SetScript("OnShow", function(self)
+        local val = AssistantButtonVisualizerDB.size or 64
+        self:SetValue(val)
+        if self.ValueLabel then
+            self.ValueLabel:SetText(tostring(val))
+        end
+    end)
+
+    sizeSlider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor(value + 0.5)
+        if AssistantButton_SetSize then
+            AssistantButton_SetSize(value)
+        end
+        if self.ValueLabel then
+            self.ValueLabel:SetText(tostring(value))
+        end
+    end)
+
     -- Action Slot Slider
     local slotLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    slotLabel:SetPoint("TOPLEFT", opacityLabel, "BOTTOMLEFT", 0, -40)
+    slotLabel:SetPoint("TOPLEFT", sizeLabel, "BOTTOMLEFT", 0, -40)
     slotLabel:SetText("Action Slot")
 
     local slotSlider = CreateFrame("Slider", "AssistantButton_SlotSlider", panel, "OptionsSliderTemplate")

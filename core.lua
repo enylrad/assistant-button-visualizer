@@ -24,12 +24,16 @@ local function InitializeDatabase()
             locked = false,
             visibility = "ALWAYS", -- "ALWAYS" or "COMBAT"
             alpha = 0.3,
+            size = 64, -- Default size
             slot = 88 -- Default hidden action slot
         }
     end
     -- Migration/Safety check for existing DBs
     if not AssistantButtonVisualizerDB.slot then
         AssistantButtonVisualizerDB.slot = 88
+    end
+    if not AssistantButtonVisualizerDB.size then
+        AssistantButtonVisualizerDB.size = 64
     end
 end
 
@@ -59,6 +63,16 @@ function AssistantButton_SetAlpha(value)
     -- Apply immediately if frame exists
     if ABV_MainFrame then
         ABV_MainFrame:SetAlpha(value)
+    end
+end
+
+-- Function to set the size
+function AssistantButton_SetSize(value)
+    if not AssistantButtonVisualizerDB then return end
+    AssistantButtonVisualizerDB.size = value
+    -- Apply immediately if frame exists
+    if ABV_MainFrame then
+        ABV_MainFrame:SetSize(value, value)
     end
 end
 
@@ -211,6 +225,13 @@ mainFrame:SetScript("OnEvent", function(self, event)
         -- Restore alpha
         if AssistantButtonVisualizerDB.alpha then
              self:SetAlpha(AssistantButtonVisualizerDB.alpha)
+        end
+
+        -- Restore size
+        if AssistantButtonVisualizerDB.size then
+            self:SetSize(AssistantButtonVisualizerDB.size, AssistantButtonVisualizerDB.size)
+        else
+            self:SetSize(FRAME_SIZE, FRAME_SIZE)
         end
     elseif event == "PLAYER_REGEN_DISABLED" then
         -- Combat started. Show frame immediately to ensure OnUpdate loop runs

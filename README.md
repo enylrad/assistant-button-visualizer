@@ -11,6 +11,7 @@ It mirrors a specific action bar slot ensuring you can place your rotation helpe
 *   **Auto-Install:** Automatically attempts to place the required spell into the correct slot on login.
 *   **Locking:** Lock the frame in place to prevent accidental movement.
 *   **Opacity Control:** Adjust the transparency of the visualizer button.
+*   **Icon Size:** Adjust the size of the visualizer button.
 *   **Custom Slot:** Select which action bar slot (1-120) the addon should use to ghost the ability.
 
 ### Commands
@@ -22,6 +23,7 @@ You can configure the addon via the Interface Options menu:
 *   **Lock Position:** Check to disable dragging.
 *   **Visibility Mode:** Toggle between "Always" and "In Combat".
 *   **Opacity:** Slider to adjust the button transparency (10% to 100%).
+*   **Icon Size:** Slider to adjust the button size (16 to 128).
 *   **Action Slot:** Select a slot between 1 and 120. Use the **Apply** button to save changes. 
     > [!TIP]
     > We recommend using a high slot (80+) that isn't on your visible bars to avoid overwriting your icons.
@@ -40,6 +42,7 @@ El addon replica una casilla específica de la barra de acción, permitiéndote 
 *   **Modos de Visibilidad:** Elige si el botón debe estar siempre visible o solo durante el combate.
 *   **Bloqueo:** Bloquea el marco en su sitio para evitar movimientos accidentales.
 *   **Control de Opacidad:** Ajusta la transparencia del botón del visualizador.
+*   **Control de Tamaño:** Ajusta el tamaño del botón del visualizador.
 *   **Casilla Personalizada:** Selecciona qué casilla de la barra de acción (1-120) debe usar el addon.
 
 ### Comandos
@@ -51,6 +54,7 @@ Puedes configurar el addon a través del menú de opciones de la interfaz:
 *   **Bloquear Posición (Lock Position):** Marca para desactivar el arrastre.
 *   **Modo de Visibilidad (Visibility Mode):** Cambia entre "Siempre" (Always) y "En Combate" (In Combat).
 *   **Opacidad (Opacity):** Deslizador para ajustar la transparencia del botón (10% a 100%).
+*   **Tamaño del Icono (Icon Size):** Deslizador para ajustar el tamaño del botón (16 a 128).
 *   **Casilla de Acción (Action Slot):** Selecciona una casilla entre 1 y 120. Usa el botón **Apply** para guardar los cambios.
     > [!TIP]
     > Recomendamos usar una casilla alta (80+) que no esté en tus barras visibles para evitar sobrescribir tus iconos.
