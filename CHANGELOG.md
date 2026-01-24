@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Icon Size Control:** New slider in options to configure the icon size (16px to 128px), defaulting to original size.
+- **Slot Cleanup:** Improved logic to clear the previous action slot when changing the configured slot.
 
 ## [1.0.0] - 2026-01-24
 
@@ -37,6 +38,7 @@ All notable changes to this project will be documented in this file.
 
 ### Añadido
 - **Control de Tamaño de Icono:** Nuevo deslizador en opciones para configurar el tamaño del icono (16px a 128px).
+- **Limpieza de Casilla:** Mejorada la lógica para limpiar la casilla de acción anterior al cambiar la configuración.
 
 ## [1.0.0] - 2026-01-24 (Español)
 

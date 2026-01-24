@@ -77,8 +77,24 @@ function AssistantButton_SetSize(value)
 end
 
 -- Function to set the action slot
+-- Function to set the action slot
 function AssistantButton_SetSlot(value)
     if not AssistantButtonVisualizerDB then return end
+    
+    local oldSlot = AssistantButtonVisualizerDB.slot
+    
+    -- If the slot has changed, we should try to clear the old one
+    if oldSlot and oldSlot ~= value then
+         if not InCombatLockdown() then
+            -- Clear the old slot
+            PickupAction(oldSlot)
+            ClearCursor()
+            print(ABV_PREFIX .. " Cleared old slot " .. oldSlot)
+         else
+            print(ABV_PREFIX .. " Cannot clear old slot " .. oldSlot .. " while in combat.")
+         end
+    end
+
     AssistantButtonVisualizerDB.slot = value
     
     -- Try to install to new slot immediately if not in combat
