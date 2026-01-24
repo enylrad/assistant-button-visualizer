@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.0] - 2026-01-24
 
+### Fixed
+- **Reassignment Bug:** Fixed an issue where the addon would constantly re-install the spell (playing a sound) on login or talent change, especially when the spell ID changed due to stance/form (e.g. Druid forms).
+
 ### Added
 - **Icon Size Control:** New slider in options to configure the icon size (16px to 128px), defaulting to original size.
 
@@ -28,6 +31,9 @@ All notable changes to this project will be documented in this file.
 ---
 
 ## [1.1.0] - 2026-01-24 (Español)
+
+### Corregido
+- **Bug de Reasignación:** Corregido un problema donde el addon reinstalaba constantemente el hechizo (reproduciendo un sonido) al iniciar sesión o cambiar talentos, especialmente cuando el ID del hechizo cambiaba por formas/posturas (ej. Druidas).
 
 ### Añadido
 - **Control de Tamaño de Icono:** Nuevo deslizador en opciones para configurar el tamaño del icono (16px a 128px).

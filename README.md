@@ -8,7 +8,6 @@ It mirrors a specific action bar slot ensuring you can place your rotation helpe
 
 ### Features
 *   **Movable Frame:** Drag and drop the preview button to any location on your screen.
-*   **Auto-Install:** Automatically attempts to place the required spell into the correct slot on login.
 *   **Locking:** Lock the frame in place to prevent accidental movement.
 *   **Opacity Control:** Adjust the transparency of the visualizer button.
 *   **Icon Size:** Adjust the size of the visualizer button.
@@ -38,7 +37,6 @@ El addon replica una casilla específica de la barra de acción, permitiéndote 
 
 ### Características
 *   **Marco Movible:** Arrastra y suelta el botón de vista previa en cualquier lugar de tu pantalla.
-*   **Auto-Instalación:** Intenta colocar automáticamente el hechizo requerido en la casilla correcta al iniciar sesión.
 *   **Modos de Visibilidad:** Elige si el botón debe estar siempre visible o solo durante el combate.
 *   **Bloqueo:** Bloquea el marco en su sitio para evitar movimientos accidentales.
 *   **Control de Opacidad:** Ajusta la transparencia del botón del visualizador.

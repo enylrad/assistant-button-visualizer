@@ -147,7 +147,7 @@ end
 
 -- Attempts to assign the spell to the hidden action slot.
 -- Checks if the spell is already there to avoid redundant writing.
-function InstallSpellToSlot() -- Made global-ish for access from API
+function InstallSpellToSlot(force) -- Made global-ish for access from API
     if InCombatLockdown() then 
         -- Silent return or debug print during development
         return 
@@ -159,13 +159,14 @@ function InstallSpellToSlot() -- Made global-ish for access from API
     -- GetActionInfo returns: type, id, subType
     local actionType, actionID = GetActionInfo(currentSlot)
 
-    -- 2. If the correct spell is already there, do nothing.
-    if actionType == "spell" and actionID == TARGET_SPELL_ID then
-        -- The spell is already installed correctly. Exit function.
+    -- 2. If we are not forcing, and there is already a spell, assume it is correct.
+    -- This prevents overwriting metamorphic spells (like Rake/Shred) that change ID,
+    -- and avoids the annoying pickup sound on every login/talent change.
+    if not force and actionType == "spell" then
         return
     end
 
-    -- 3. If we are here, the slot is empty or has the wrong spell. Attempt to install.
+    -- 3. If we are here, the slot is empty, has wrong type, or we are forcing. Attempt to install.
     local spellInfo = C_Spell.GetSpellInfo(TARGET_SPELL_ID)
     
     if spellInfo and spellInfo.spellID then
@@ -179,7 +180,9 @@ function InstallSpellToSlot() -- Made global-ish for access from API
         end
     else
         -- Only print error if manually triggered or debugging, to avoid login spam if ID is wrong
-        -- print("|cffFF0000ABV Error:|r Invalid Spell ID or spell not learned.")
+        if force then
+            print(ABV_PREFIX .. " Error: Invalid Spell ID or spell not learned.")
+        end
     end
 end
 
@@ -215,7 +218,7 @@ mainFrame:SetScript("OnEvent", function(self, event)
         )
         
         -- Delay installation to ensure Spellbook is fully loaded.
-        C_Timer.After(2, InstallSpellToSlot)
+        C_Timer.After(2, function() InstallSpellToSlot(false) end)
 
         -- Apply lock state
         if AssistantButtonVisualizerDB.locked then
@@ -240,7 +243,7 @@ mainFrame:SetScript("OnEvent", function(self, event)
     elseif event == "PLAYER_SPECIALIZATION_CHANGED" or event == "TRAIT_CONFIG_UPDATED" then
         -- Re-install spell when talents or specialization change.
         -- We add a small delay to ensure the spellbook has processed the changes.
-        C_Timer.After(1, InstallSpellToSlot)
+        C_Timer.After(1, function() InstallSpellToSlot(false) end)
     end
 end)
 
@@ -264,7 +267,7 @@ SlashCmdList["ABV"] = function(msg)
         
     elseif cmd == "install" then
         print(ABV_PREFIX .. " Forcing manual check/installation...")
-        InstallSpellToSlot()
+        InstallSpellToSlot(true)
         
     else
         print(ABV_PREFIX .. " Commands:|r")
