@@ -6,13 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Optimization:** Added support for WoW Patch 12.0.1.
-- **Localization:** Added full Spanish (esES & esMX) localization support.
+- **Localization:** Added full Spanish localization support.
 
 ## [1.1.1] - 2026-01-27 (Español)
 
 ### Añadido
 - **Optimización:** Añadido soporte para el Parche 12.0.1 de WoW.
-- **Localización:** Añadido soporte completo de localización al español (esES y esMX).
+- **Localización:** Añadido soporte completo de localización al español.
 
 ## [1.1.0] - 2026-01-24
 
