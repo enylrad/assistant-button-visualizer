@@ -1,3 +1,6 @@
+local _, addonTable = ...
+local L = addonTable.L
+
 -- ============================================================================
 -- CONFIGURATION & CONSTANTS
 -- ============================================================================
@@ -48,11 +51,11 @@ function AssistantButton_SetLock(locked)
     if locked then
         ABV_MainFrame:EnableMouse(false)
         ABV_MainFrame:SetMovable(false)
-        print(ABV_PREFIX .. " Frame Locked.")
+        print(ABV_PREFIX .. L["FRAME_LOCKED"])
     else
         ABV_MainFrame:EnableMouse(true)
         ABV_MainFrame:SetMovable(true)
-        print(ABV_PREFIX .. " Frame Unlocked.")
+        print(ABV_PREFIX .. L["FRAME_UNLOCKED"])
     end
 end
 
@@ -88,9 +91,9 @@ function AssistantButton_SetSlot(value)
             -- Clear the old slot
             PickupAction(oldSlot)
             ClearCursor()
-            print(ABV_PREFIX .. " Cleared old slot " .. oldSlot)
+            print(ABV_PREFIX .. L["CLEARED_OLD_SLOT"] .. oldSlot)
          else
-            print(ABV_PREFIX .. " Cannot clear old slot " .. oldSlot .. " while in combat.")
+            print(ABV_PREFIX .. string.format(L["CANNOT_CLEAR_COMBAT"], oldSlot))
          end
     end
 
@@ -100,7 +103,7 @@ function AssistantButton_SetSlot(value)
     if not InCombatLockdown() then
         InstallSpellToSlot()
     else
-        print(ABV_PREFIX .. " Slot changed to " .. value .. ". Re-installation pending combat end.")
+        print(ABV_PREFIX .. string.format(L["SLOT_CHANGED_PENDING"], value))
     end
 end
 
@@ -191,12 +194,12 @@ function InstallSpellToSlot(force) -- Made global-ish for access from API
         if GetCursorInfo() then
             PlaceAction(currentSlot)
             ClearCursor()
-            print(ABV_PREFIX .. " Spell installed to slot " .. currentSlot)
+            print(ABV_PREFIX .. L["SPELL_INSTALLED"] .. currentSlot)
         end
     else
         -- Only print error if manually triggered or debugging, to avoid login spam if ID is wrong
         if force then
-            print(ABV_PREFIX .. " Error: Invalid Spell ID or spell not learned.")
+            print(ABV_PREFIX .. L["ERROR_INVALID_SPELL"])
         end
     end
 end
@@ -278,15 +281,15 @@ SlashCmdList["ABV"] = function(msg)
         AssistantButtonVisualizerDB.x = 0
         AssistantButtonVisualizerDB.y = 0
         
-        print(ABV_PREFIX .. " Position reset to center.")
+        print(ABV_PREFIX .. L["POSITION_RESET"])
         
     elseif cmd == "install" then
-        print(ABV_PREFIX .. " Forcing manual check/installation...")
+        print(ABV_PREFIX .. L["FORCING_MANUAL"])
         InstallSpellToSlot(true)
         
     else
-        print(ABV_PREFIX .. " Commands:|r")
-        print("/abv reset   - Resets the frame position to the center.")
-        print("/abv install - Checks slot " .. SLOT .. " and installs the spell if missing.")
+        print(ABV_PREFIX .. L["COMMANDS_LIST"])
+        print("/abv reset   - " .. L["CMD_RESET_DESC"])
+        print("/abv install - " .. string.format(L["CMD_INSTALL_DESC"], SLOT))
     end
 end

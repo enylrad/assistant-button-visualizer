@@ -1,8 +1,8 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Assistant Button Visualizer
 ## Notes: Real-time visual interface for the Assistant Button rotation logic.
 ## Author: Enylrad
-## Version: 1.1.0
+## Version: 1.1.1
 ## SavedVariables: AssistantButtonVisualizerDB
 
 ## Category: User Interface
@@ -17,6 +17,10 @@
 ## Category-ruRU: Интерфейс пользователя
 ## Category-zhCN: 用户界面
 ## Category-zhTW: 使用者介面
+
+
+Locales\enUS.lua
+Locales\esES.lua
 
 core.lua
 options.lua

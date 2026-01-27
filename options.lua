@@ -1,3 +1,6 @@
+local _, addonTable = ...
+local L = addonTable.L
+
 -- ============================================================================
 -- OPTIONS PANEL
 -- ============================================================================
@@ -15,18 +18,18 @@ local function CreateOptionsPanel()
     -- Title
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("Assistant Button Visualizer")
+    title:SetText(L["TITLE"])
 
     -- Description
     local description = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-    description:SetText("Configure the Assistant Button visualizer settings.")
+    description:SetText(L["DESCRIPTION"])
 
     -- Lock Position Checkbox
     local lockButton = CreateFrame("CheckButton", "AssistantButton_LockPosition", panel, "InterfaceOptionsCheckButtonTemplate")
     lockButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -16)
-    lockButton.Text:SetText("Lock Position")
-    lockButton.tooltipText = "Lock the button frame to prevent accidental movement."
+    lockButton.Text:SetText(L["LOCK_POSITION"])
+    lockButton.tooltipText = L["LOCK_POSITION_DESC"]
     
     -- OnShow handler to update the checkbox state from SavedVariables
     lockButton:SetScript("OnShow", function(self)
@@ -47,20 +50,20 @@ local function CreateOptionsPanel()
     -- Visibility Mode Label
     local visibilityLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     visibilityLabel:SetPoint("TOPLEFT", lockButton, "BOTTOMLEFT", 0, -20)
-    visibilityLabel:SetText("Visibility Mode")
+    visibilityLabel:SetText(L["VISIBILITY_MODE"])
 
     -- Visibility Mode Cycle Button
     local visibilityBtn = CreateFrame("Button", "AssistantButton_VisibilityBtn", panel, "UIMenuButtonStretchTemplate")
     visibilityBtn:SetPoint("LEFT", visibilityLabel, "RIGHT", 20, 0)
     visibilityBtn:SetSize(120, 24)
-    visibilityBtn:SetText(AssistantButtonVisualizerDB and AssistantButtonVisualizerDB.visibility == "COMBAT" and "In Combat" or "Always")
+    visibilityBtn:SetText(AssistantButtonVisualizerDB and AssistantButtonVisualizerDB.visibility == "COMBAT" and L["IN_COMBAT"] or L["ALWAYS"])
 
     -- Function to update button text based on DB
     local function UpdateVisibilityButtonText()
         if AssistantButtonVisualizerDB.visibility == "COMBAT" then
-            visibilityBtn:SetText("In Combat")
+            visibilityBtn:SetText(L["IN_COMBAT"])
         else
-            visibilityBtn:SetText("Always")
+            visibilityBtn:SetText(L["ALWAYS"])
         end
     end
 
@@ -82,7 +85,7 @@ local function CreateOptionsPanel()
         -- so it can re-evaluate visibility immediately.
         if ABV_MainFrame then ABV_MainFrame:Show() end
         
-        print(ABV_PREFIX .. " Visibility set to: " .. AssistantButtonVisualizerDB.visibility)
+        print(ABV_PREFIX .. L["VISIBILITY_SET"] .. AssistantButtonVisualizerDB.visibility)
     end)
     
 
@@ -90,7 +93,7 @@ local function CreateOptionsPanel()
     -- Opacity Slider
     local opacityLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     opacityLabel:SetPoint("TOPLEFT", visibilityLabel, "BOTTOMLEFT", 0, -40)
-    opacityLabel:SetText("Opacity")
+    opacityLabel:SetText(L["OPACITY"])
 
     local slider = CreateFrame("Slider", "AssistantButton_OpacitySlider", panel, "OptionsSliderTemplate")
     slider:SetPoint("LEFT", opacityLabel, "RIGHT", 20, 0)
@@ -129,7 +132,7 @@ local function CreateOptionsPanel()
     -- Icon Size Slider
     local sizeLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     sizeLabel:SetPoint("TOPLEFT", opacityLabel, "BOTTOMLEFT", 0, -40)
-    sizeLabel:SetText("Icon Size")
+    sizeLabel:SetText(L["ICON_SIZE"])
 
     local sizeSlider = CreateFrame("Slider", "AssistantButton_SizeSlider", panel, "OptionsSliderTemplate")
     sizeSlider:SetPoint("LEFT", sizeLabel, "RIGHT", 20, 0)
@@ -167,7 +170,7 @@ local function CreateOptionsPanel()
     -- Action Slot Slider
     local slotLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     slotLabel:SetPoint("TOPLEFT", sizeLabel, "BOTTOMLEFT", 0, -40)
-    slotLabel:SetText("Action Slot")
+    slotLabel:SetText(L["ACTION_SLOT"])
 
     local slotSlider = CreateFrame("Slider", "AssistantButton_SlotSlider", panel, "OptionsSliderTemplate")
     slotSlider:SetPoint("LEFT", slotLabel, "RIGHT", 20, 0)
@@ -176,7 +179,7 @@ local function CreateOptionsPanel()
     slotSlider:SetMinMaxValues(1, 120)
     slotSlider:SetValueStep(1)
     slotSlider:SetObeyStepOnDrag(true)
-    slotSlider.tooltipText = "Select the action slot (1-120) where the ability will be placed.\nCommon slots:\nBar 1: 1-12\nBar 2: 13-24\nBar 3: 25-36\nBar 4: 37-48\nBar 5: 49-60\nBar 6: 61-72"
+    slotSlider.tooltipText = L["SLOT_TOOLTIP"]
     
     _G[slotSlider:GetName() .. "Low"]:SetText("1")
     _G[slotSlider:GetName() .. "High"]:SetText("120")
@@ -213,7 +216,7 @@ local function CreateOptionsPanel()
     local applyBtn = CreateFrame("Button", "AssistantButton_SlotApplyBtn", panel, "UIPanelButtonTemplate")
     applyBtn:SetPoint("TOPLEFT", slotSlider, "BOTTOMLEFT", 0, -10)
     applyBtn:SetSize(80, 22)
-    applyBtn:SetText("Apply")
+    applyBtn:SetText(L["APPLY"])
     applyBtn:Disable()
     panel.applyBtn = applyBtn
 
@@ -221,7 +224,7 @@ local function CreateOptionsPanel()
         local value = math.floor(slotSlider:GetValue() + 0.5)
         if AssistantButton_SetSlot then
             AssistantButton_SetSlot(value)
-            print(ABV_PREFIX .. " Applied new slot: " .. value)
+            print(ABV_PREFIX .. L["APPLIED_NEW_SLOT"] .. value)
         end
         self:Disable()
     end)
@@ -231,7 +234,7 @@ local function CreateOptionsPanel()
     slotHelp:SetPoint("TOPLEFT", applyBtn, "BOTTOMLEFT", 0, -16)
     slotHelp:SetWidth(400)
     slotHelp:SetJustifyH("LEFT")
-    slotHelp:SetText("Standard bars use 1-120. We recommend using a high slot (like 80+) that isn't on your visible bars to avoid overwriting your icons.")
+    slotHelp:SetText(L["SLOT_HELP"])
 
     
     -- Register the panel with the standard Interface Options
