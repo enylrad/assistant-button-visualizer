@@ -184,14 +184,12 @@ function Compat.IsSpellUsable(spellID)
 end
 
 --------------------------------------------------------------------------------
--- Action slots (the "slot" source and the clean-up of 1.x)
+-- Action slots (only used to clean up the slot of 1.x)
 --------------------------------------------------------------------------------
 
 local ActionBar = C_ActionBar or {}
 local getActionInfo = ActionBar.GetActionInfo or _G.GetActionInfo
-local getActionTexture = ActionBar.GetActionTexture or _G.GetActionTexture
 local pickupAction = ActionBar.PickupAction or _G.PickupAction
-local placeAction = ActionBar.PlaceAction or _G.PlaceAction
 
 --- Returns the type and id of what an action slot holds ("spell", 1229376).
 function Compat.GetActionInfo(slot)
@@ -199,21 +197,6 @@ function Compat.GetActionInfo(slot)
         return nil
     end
     return getActionInfo(slot)
-end
-
---- Returns the icon of an action slot, or nil when it is empty.
-function Compat.GetActionTexture(slot)
-    return getActionTexture and getActionTexture(slot)
-end
-
---- Places what the cursor holds into an action slot. Must not be called in
---- combat. Returns false when the client has no way to do it.
-function Compat.PlaceAction(slot)
-    if not placeAction then
-        return false
-    end
-    placeAction(slot)
-    return true
 end
 
 --- Empties an action slot. Must not be called in combat.

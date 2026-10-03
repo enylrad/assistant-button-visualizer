@@ -8,14 +8,9 @@ ns.Locales = ns.Locales or {}
 
 ns.Locales.esES = {
     -- General
-    API_MISSING = "este cliente no tiene sugerencias de combate asistido; se usa el método de la casilla de acción.",
-    SPELL_INSTALLED = "hechizo colocado en la casilla de acción |cffffd200%d|r.",
+    API_MISSING = "este cliente no tiene sugerencias de combate asistido, así que no hay nada que mostrar.",
     CLEARED_OLD_SLOT = "se ha quitado el hechizo del Botón Asistente de la casilla |cffffd200%d|r; ya no hace falta.",
-    SLOT_CHANGED_PENDING = "casilla de acción cambiada a |cffffd200%d|r. El hechizo se moverá al terminar el combate.",
-    ERROR_INVALID_SPELL = "el hechizo del Botón Asistente no está disponible para este personaje.",
     POSITION_RESET = "el botón ha vuelto al centro de la pantalla.",
-    FORCING_MANUAL = "colocando el hechizo en su casilla de acción...",
-    APPLIED_NEW_SLOT = "ahora se usa la casilla de acción |cffffd200%d|r.",
     PROFILE_COPIED = "se ha copiado el perfil |cffffd200%s|r.",
     PROFILE_RESET_DONE = "se ha restablecido el perfil activo.",
     PROFILE_ACTIVE = "Perfil activo: |cffffd200%s|r",
@@ -67,14 +62,7 @@ ns.Locales.esES = {
     OPT_RESET_POSITION = "Centrar el botón",
     OPT_EDIT_MODE_HELP = "El botón también se puede mover desde el Modo Edición del juego.",
 
-    SECTION_SOURCE = "Sugerencia e idioma",
-    OPT_SOURCE = "Leer la sugerencia de",
-    SOURCE_api = "Combate asistido (recomendado)",
-    SOURCE_slot = "Una casilla de acción (método 1.x)",
-    OPT_SOURCE_HELP = "El combate asistido no necesita nada en tus barras. El método de la casilla guarda el hechizo del Botón Asistente en una casilla y la refleja; úsalo solo si el otro no te funciona.",
-    OPT_SLOT = "Casilla de acción",
-    OPT_APPLY = "Aplicar",
-    OPT_INSTALL = "Colocar el hechizo ahora",
+    SECTION_LANGUAGE = "Idioma",
     OPT_LANGUAGE = "Idioma del addon",
     LOCALE_auto = "Idioma del juego",
     LOCALE_enUS = "English",

@@ -248,7 +248,7 @@ end
 
 --- Evaluates every rule and shows the button accordingly.
 function Button:Update()
-    if not self:IsAllowed() then
+    if not self:IsAllowed() or not (self.moving or Assist:IsAvailable()) then
         self.poller:Hide()
         SetShown(false)
         return
@@ -346,10 +346,6 @@ function Button:OnLogin()
     end)
 
     ns:RegisterMessage("ABV_SETTINGS_CHANGED", function()
-        self:ApplySettings()
-    end)
-    ns:RegisterMessage("ABV_SOURCE_CHANGED", function()
-        lastSuggestion = nil
         self:ApplySettings()
     end)
     ns:RegisterMessage("ABV_PROFILE_CHANGED", function()

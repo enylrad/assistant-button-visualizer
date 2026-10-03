@@ -8,14 +8,9 @@ ns.Locales = ns.Locales or {}
 
 ns.Locales.enUS = {
     -- General
-    API_MISSING = "this client has no assisted combat suggestions; using the action slot method.",
-    SPELL_INSTALLED = "spell placed in action slot |cffffd200%d|r.",
+    API_MISSING = "this client has no assisted combat suggestions, so there is nothing to show.",
     CLEARED_OLD_SLOT = "removed the Assistant Button spell from action slot |cffffd200%d|r; it is not needed any more.",
-    SLOT_CHANGED_PENDING = "action slot changed to |cffffd200%d|r. The spell will be moved when combat ends.",
-    ERROR_INVALID_SPELL = "the Assistant Button spell is not available for this character.",
     POSITION_RESET = "button moved back to the center of the screen.",
-    FORCING_MANUAL = "placing the spell in its action slot...",
-    APPLIED_NEW_SLOT = "now using action slot |cffffd200%d|r.",
     PROFILE_COPIED = "copied the profile |cffffd200%s|r.",
     PROFILE_RESET_DONE = "the active profile was reset.",
     PROFILE_ACTIVE = "Active profile: |cffffd200%s|r",
@@ -67,14 +62,7 @@ ns.Locales.enUS = {
     OPT_RESET_POSITION = "Center the button",
     OPT_EDIT_MODE_HELP = "The button can also be moved from the game's Edit Mode.",
 
-    SECTION_SOURCE = "Suggestion and language",
-    OPT_SOURCE = "Read the suggestion from",
-    SOURCE_api = "Assisted combat (recommended)",
-    SOURCE_slot = "An action slot (1.x method)",
-    OPT_SOURCE_HELP = "Assisted combat needs nothing on your bars. The action slot method keeps the Assistant Button spell in a slot and mirrors it; use it only if the other one does not work for you.",
-    OPT_SLOT = "Action slot",
-    OPT_APPLY = "Apply",
-    OPT_INSTALL = "Place the spell now",
+    SECTION_LANGUAGE = "Language",
     OPT_LANGUAGE = "Addon language",
     LOCALE_auto = "Game language",
     LOCALE_enUS = "English",

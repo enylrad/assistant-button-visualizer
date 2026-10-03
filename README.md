@@ -13,8 +13,7 @@ its icon. Nothing is placed on your action bars.
 
 > [!NOTE]
 > Versions 1.x kept the Assistant Button spell in an action slot (88 by default). 2.0
-> removes it from that slot once, on the first login. If the assisted combat suggestions
-> do not work on your client, the old method is still available in the options.
+> removes it from that slot once, on the first login, if it is still there.
 
 ## Features
 
@@ -71,8 +70,7 @@ y **WoW: Forever**.
 El addon pregunta al sistema de combate asistido del juego qué hechizo sugiere y muestra
 su icono, sin colocar nada en tus barras. Las versiones 1.x guardaban el hechizo en una
 casilla de acción (la 88 por defecto); la 2.0 lo quita de esa casilla una vez, al
-conectar. Si las sugerencias no funcionan en tu cliente, el método antiguo sigue
-disponible en las opciones.
+conectar, si sigue ahí.
 
 ### Características
 

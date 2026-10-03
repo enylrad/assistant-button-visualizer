@@ -5,10 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - 2026-10-03
 
 ### Changed
-- **No action slot needed:** the suggestion is read from the assisted combat API (`C_AssistedCombat`). The Assistant Button spell that 1.x kept in an action slot is removed from it once, on the first login. The action slot method is still available in the options for clients where the API does not work.
+- **No action slot needed:** the suggestion is read from the assisted combat API (`C_AssistedCombat`). The Assistant Button spell that 1.x kept in an action slot is removed from it once, on the first login.
 - The 1.x settings become the "Default" profile. Opacity is now set separately in and out of combat.
-- The options panel is split in sections (profile, visibility, appearance, position, suggestion and language) and scrolls.
-- `/abv install` only exists with the action slot method.
+- The options panel is split in sections (profile, visibility, appearance, position and language) and scrolls.
+
+### Removed
+- The action slot setting and `/abv install`: they are no longer needed.
 
 ### Added
 - **Profiles:** shared by every character, per character or per specialization, with copy and reset.
@@ -19,10 +21,12 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - 2026-10-03 (Español)
 
 ### Cambiado
-- **Ya no hace falta una casilla de acción:** la sugerencia se lee de la API de combate asistido (`C_AssistedCombat`). El hechizo del Botón Asistente que la 1.x guardaba en una casilla se quita una vez, al conectar. El método de la casilla sigue disponible en las opciones para clientes donde la API no funcione.
+- **Ya no hace falta una casilla de acción:** la sugerencia se lee de la API de combate asistido (`C_AssistedCombat`). El hechizo del Botón Asistente que la 1.x guardaba en una casilla se quita una vez, al conectar.
 - La configuración de la 1.x pasa a ser el perfil "Default". La opacidad se ajusta por separado dentro y fuera de combate.
-- El panel de opciones se divide en secciones (perfil, visibilidad, apariencia, posición, sugerencia e idioma) y tiene desplazamiento.
-- `/abv install` solo existe con el método de la casilla.
+- El panel de opciones se divide en secciones (perfil, visibilidad, apariencia, posición e idioma) y tiene desplazamiento.
+
+### Eliminado
+- La opción de casilla de acción y `/abv install`: ya no hacen falta.
 
 ### Añadido
 - **Perfiles:** compartido, por personaje o por especialización, con copiar y restablecer.

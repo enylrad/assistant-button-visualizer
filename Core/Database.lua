@@ -6,7 +6,7 @@
     Layout:
       AssistantButtonVisualizerDB = {
           schema   = <number>,
-          global   = { locale, source, slot },
+          global   = { locale },
           profiles = { [name] = { point, relativePoint, x, y, size, locked,
                                   visibility, hideMounted, hideWithoutSuggestion,
                                   alphaCombat, alphaOutOfCombat, fade, border,
@@ -35,12 +35,9 @@ Database.DEFAULT_PROFILE = "Default"
 Database.MIN_SIZE = 16
 Database.MAX_SIZE = 128
 Database.MAX_FADE = 1
-Database.MIN_SLOT = 1
-Database.MAX_SLOT = 120
 
 -- Choices shown in the options, in display order.
 Database.MODES = { "account", "character", "spec" }
-Database.SOURCES = { "api", "slot" }
 Database.VISIBILITY_MODES = { "ALWAYS", "COMBAT", "HOSTILE", "INSTANCE" }
 Database.BORDERS = { "none", "thin", "blizzard" }
 
@@ -65,9 +62,10 @@ local DEFAULT_PROFILE = {
 
 local DEFAULT_GLOBAL = {
     locale = "auto",
-    source = "api",         -- "api": assisted combat API; "slot": mirror an action slot (1.x)
-    slot = 88,              -- action slot used by the "slot" source
 }
+
+-- Action slot 1.x used when none was saved.
+local LEGACY_DEFAULT_SLOT = 88
 
 local LEGACY_KEYS = { "point", "relativePoint", "x", "y", "locked", "visibility", "alpha", "size", "slot" }
 
@@ -100,10 +98,10 @@ local function MigrateFromV1(db)
     -- 1.x showed a placeholder when there was nothing to mirror.
     profile.hideWithoutSuggestion = false
 
-    db.global = { locale = old.locale, slot = old.slot }
+    db.global = { locale = old.locale }
     db.profiles = { [Database.DEFAULT_PROFILE] = profile }
     db.settings = nil
-    return old.slot or DEFAULT_GLOBAL.slot
+    return tonumber(old.slot) or LEGACY_DEFAULT_SLOT
 end
 
 --- Keeps the saved values inside the ranges the addon supports.
@@ -121,10 +119,9 @@ local function SanitizeProfile(profile)
 end
 
 local function SanitizeGlobal(global)
-    global.slot = ns.Clamp(math.floor(tonumber(global.slot) or DEFAULT_GLOBAL.slot), Database.MIN_SLOT, Database.MAX_SLOT)
-    if not tContains(Database.SOURCES, global.source) then
-        global.source = DEFAULT_GLOBAL.source
-    end
+    -- Settings of the action slot method, which development builds of 2.0 had.
+    global.source = nil
+    global.slot = nil
 end
 
 --------------------------------------------------------------------------------

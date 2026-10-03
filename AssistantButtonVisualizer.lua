@@ -39,9 +39,6 @@ SlashCmdList.ASSISTANTBUTTONVISUALIZER = function(input)
         ns:Print(ns.L["POSITION_RESET"])
     elseif command == "move" then
         ns.Mover:Toggle()
-    elseif command == "install" and ns.Assist:GetSource() == "slot" then
-        ns:Print(ns.L["FORCING_MANUAL"])
-        ns.Assist:Install(true)
     else
         PrintHelp()
     end

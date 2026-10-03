@@ -1,7 +1,7 @@
 --[[----------------------------------------------------------------------------
     AssistantButtonVisualizer - Options panel
     Registered in the game's AddOns settings. Sections: profile, visibility,
-    appearance, position, suggestion source and language.
+    appearance, position and language.
 
     Built from the factory in UI\Widgets.lua, so it works with the templates
     of every supported client.
@@ -11,7 +11,6 @@ local _, ns = ...
 
 local Options = ns:NewModule("Options")
 local Database = ns.Database
-local Assist = ns.Assist
 local Mover = ns.Mover
 local Widgets = ns.Widgets
 local L = ns.L
@@ -208,57 +207,18 @@ function Options:BuildPanel(panel)
     end
     y = y - 12
 
-    ------------------------------------------------------------------ Source
-    Header("SECTION_SOURCE")
-    Caption("OPT_SOURCE")
-    Caption("OPT_LANGUAGE", COLUMN)
+    ------------------------------------------------------------------ Language
+    Header("SECTION_LANGUAGE")
+    Caption("OPT_LANGUAGE")
     y = y - 18
-    widgets.source = Widgets.CreateDropdown(content, 220, ListOptions(Database.SOURCES, "SOURCE_"),
-        function() return ns.global.source end,
-        function(value) Assist:SetSource(value) end)
-    widgets.source:SetPoint("TOPLEFT", x, y)
     widgets.language = Widgets.CreateDropdown(content, 220, LocaleOptions,
         function() return ns.global.locale end,
         function(value)
             ns.global.locale = value
             ns:SetLocale(value)
         end)
-    widgets.language:SetPoint("TOPLEFT", x + COLUMN, y)
-    y = y - 34
-    local sourceHelp = Widgets.CreateText(content, "GameFontDisableSmall", "OPT_SOURCE_HELP")
-    sourceHelp:SetPoint("TOPLEFT", x, y)
-    sourceHelp:SetWidth(CONTENT_WIDTH)
-    sourceHelp:SetWordWrap(true)
+    widgets.language:SetPoint("TOPLEFT", x, y)
     y = y - 40
-
-    -- The action slot only matters for the slot source. It is staged and
-    -- applied with a button: moving the slider would otherwise clear and fill
-    -- every slot it passes over.
-    widgets.slot = Widgets.CreateSlider(content, "OPT_SLOT", Database.MIN_SLOT, Database.MAX_SLOT, 1,
-        function(value) return tostring(ns.Round(value)) end,
-        function() return self.pendingSlot or ns.global.slot end,
-        function(value)
-            self.pendingSlot = value
-            if widgets.apply then
-                widgets.apply:SetEnabled(value ~= ns.global.slot)
-            end
-        end)
-    widgets.slot:SetPoint("TOPLEFT", x, y)
-    widgets.apply = Widgets.CreateButton(content, 100, "OPT_APPLY", function()
-        local slot = self.pendingSlot
-        self.pendingSlot = nil
-        if slot and slot ~= ns.global.slot then
-            Assist:SetSlot(slot)
-            ns:Print(L["APPLIED_NEW_SLOT"], slot)
-        end
-        self:Refresh()
-    end)
-    widgets.apply:SetPoint("BOTTOMLEFT", widgets.slot, "BOTTOMRIGHT", 10, -1)
-    widgets.install = Widgets.CreateButton(content, 180, "OPT_INSTALL", function()
-        Assist:Install(true)
-    end)
-    widgets.install:SetPoint("LEFT", widgets.apply, "RIGHT", 10, 0)
-    y = y - 56
 
     content:SetHeight(-y + 16)
 end
@@ -272,18 +232,12 @@ function Options:Refresh()
     for _, name in ipairs({
         "mode", "copy", "visibility", "hideMounted", "hideWithoutSuggestion", "size", "fade",
         "alphaCombat", "alphaOutOfCombat", "border", "cropIcon", "glow", "colorByState",
-        "locked", "source", "language", "slot",
+        "locked", "language",
     }) do
         widgets[name]:Refresh()
     end
     widgets.activeProfile:SetText(L["PROFILE_ACTIVE"]:format(Database.activeProfile or "?"))
     widgets.move:SetText(Mover.active and L["OPT_MOVE_DONE"] or L["OPT_MOVE"])
-
-    local usesSlot = Assist:GetSource() == "slot"
-    widgets.slot:SetShown(usesSlot)
-    widgets.apply:SetShown(usesSlot)
-    widgets.install:SetShown(usesSlot)
-    widgets.apply:SetEnabled(self.pendingSlot ~= nil and self.pendingSlot ~= ns.global.slot)
 end
 
 function Options:OnInitialize()
@@ -296,10 +250,6 @@ function Options:OnInitialize()
         end
         self:Refresh()
     end)
-    panel:SetScript("OnHide", function()
-        -- An unapplied slot is discarded when the panel closes.
-        self.pendingSlot = nil
-    end)
     self.panel = panel
     self.category = Widgets.RegisterPanel(panel, ns.title)
 
@@ -309,8 +259,7 @@ function Options:OnInitialize()
         end
     end
     for _, message in ipairs({
-        "ABV_SETTINGS_CHANGED", "ABV_LOCALE_CHANGED", "ABV_PROFILE_CHANGED",
-        "ABV_SOURCE_CHANGED", "ABV_MOVER_CHANGED",
+        "ABV_SETTINGS_CHANGED", "ABV_LOCALE_CHANGED", "ABV_PROFILE_CHANGED", "ABV_MOVER_CHANGED",
     }) do
         ns:RegisterMessage(message, RefreshIfShown)
     end
