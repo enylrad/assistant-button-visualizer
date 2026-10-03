@@ -3,9 +3,9 @@
     The visualizer: a movable icon that mirrors the action slot holding the
     Assistant Button spell, so its suggestion can sit anywhere on the screen.
 
-    The suggested spell changes without any event telling addons about it, so
-    the icon is polled while the button is shown. Whether it is shown is
-    driven by events.
+    The suggested spell and its range change without any event telling addons
+    about them, so the icon and its tint are polled while the button is shown.
+    Whether it is shown is driven by events.
 ------------------------------------------------------------------------------]]
 
 local _, ns = ...
@@ -15,6 +15,12 @@ local Compat = ns.Compat
 
 local UPDATE_INTERVAL = 0.1
 local EMPTY_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+
+-- Tints used by the default action buttons.
+local COLOR_NORMAL = { 1, 1, 1 }
+local COLOR_OUT_OF_RANGE = { 0.8, 0.1, 0.1 }
+local COLOR_NO_POWER = { 0.5, 0.5, 1 }
+local COLOR_UNUSABLE = { 0.4, 0.4, 0.4 }
 
 local inCombat = false
 
@@ -58,12 +64,31 @@ function Button:UpdateIcon()
     icon:SetDesaturated(texture == nil)
 end
 
+--- Tints the icon red out of range, blue without enough power and grey when
+--- the action cannot be used, like the default action buttons.
+function Button:UpdateColor()
+    local color = COLOR_NORMAL
+    local slot = ns.settings.slot
+    if ns.settings.colorByState and Compat.GetActionTexture(slot) then
+        local usable, noPower = Compat.IsUsableAction(slot)
+        if Compat.IsActionInRange(slot) == false then
+            color = COLOR_OUT_OF_RANGE
+        elseif noPower then
+            color = COLOR_NO_POWER
+        elseif not usable then
+            color = COLOR_UNUSABLE
+        end
+    end
+    icon:SetVertexColor(color[1], color[2], color[3])
+end
+
 local elapsedSinceUpdate = 0
 frame:SetScript("OnUpdate", function(_, elapsed)
     elapsedSinceUpdate = elapsedSinceUpdate + elapsed
     if elapsedSinceUpdate >= UPDATE_INTERVAL then
         elapsedSinceUpdate = 0
         Button:UpdateIcon()
+        Button:UpdateColor()
     end
 end)
 
@@ -79,6 +104,7 @@ end
 function Button:UpdateVisibility()
     if self:ShouldShow() then
         self:UpdateIcon()
+        self:UpdateColor()
         frame:Show()
     else
         frame:Hide()

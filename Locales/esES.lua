@@ -24,6 +24,7 @@ ns.Locales.esES = {
     -- Options
     OPTIONS_SUBTITLE = "Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla. Arrastra el botón para moverlo mientras esté desbloqueado.",
     OPT_LOCK = "Bloquear posición (los clics también lo atraviesan)",
+    OPT_COLOR_BY_STATE = "Colorear fuera de alcance o si no se puede usar",
     OPT_VISIBILITY = "Mostrar el botón",
     VISIBILITY_ALWAYS = "Siempre",
     VISIBILITY_COMBAT = "En combate",

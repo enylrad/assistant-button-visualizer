@@ -7,7 +7,7 @@
           schema   = <number>,
           settings = {
               point, relativePoint, x, y,  -- button position on UIParent
-              locked, visibility, alpha, size, slot, locale,
+              locked, visibility, alpha, size, slot, colorByState, locale,
           },
       }
 
@@ -39,6 +39,7 @@ local DEFAULT_SETTINGS = {
     alpha = 0.3,
     size = 64,
     slot = 88,          -- a slot outside the default visible bars
+    colorByState = true, -- tint the icon when out of range or not usable
     locale = "auto",
 }
 

@@ -24,6 +24,7 @@ ns.Locales.enUS = {
     -- Options
     OPTIONS_SUBTITLE = "Shows the Assistant Button suggestion anywhere on the screen. Drag the button to move it while it is unlocked.",
     OPT_LOCK = "Lock position (also lets clicks go through)",
+    OPT_COLOR_BY_STATE = "Tint when out of range or not usable",
     OPT_VISIBILITY = "Show the button",
     VISIBILITY_ALWAYS = "Always",
     VISIBILITY_COMBAT = "In combat",

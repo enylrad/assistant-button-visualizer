@@ -160,6 +160,11 @@ function Options:BuildPanel(panel)
         function(value) ns.settings.locked = value; Notify() end)
     widgets.locked:SetPoint("TOPLEFT", x - 4, -80)
 
+    widgets.colorByState = CreateCheckbox(panel, "OPT_COLOR_BY_STATE",
+        function() return ns.settings.colorByState end,
+        function(value) ns.settings.colorByState = value; Notify() end)
+    widgets.colorByState:SetPoint("TOPLEFT", x + 296, -80)
+
     local visibilityCaption = CreateText(panel, "GameFontNormal", "OPT_VISIBILITY")
     visibilityCaption:SetPoint("TOPLEFT", x, -120)
     widgets.visibility = CreateDropdown(panel, 200, VisibilityOptions,
@@ -239,6 +244,7 @@ function Options:Refresh()
         entry[1]:SetText(L[entry[2]])
     end
     widgets.locked:Refresh()
+    widgets.colorByState:Refresh()
     widgets.visibility:GenerateMenu()
     widgets.language:GenerateMenu()
     widgets.alpha:Refresh()
