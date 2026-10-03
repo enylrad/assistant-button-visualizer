@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-10-03
+
+### Changed
+- **No action slot needed:** the suggestion is read from the assisted combat API (`C_AssistedCombat`). The Assistant Button spell that 1.x kept in an action slot is removed from it once, on the first login. The action slot method is still available in the options for clients where the API does not work.
+- The 1.x settings become the "Default" profile. Opacity is now set separately in and out of combat.
+- The options panel is split in sections (profile, visibility, appearance, position, suggestion and language) and scrolls.
+- `/abv install` only exists with the action slot method.
+
+### Added
+- **Profiles:** shared by every character, per character or per specialization, with copy and reset.
+- **Edit Mode:** the button can be moved from the game's Edit Mode (retail and Forever), with `/abv move` or with the Move button in the options, even when it is locked.
+- **Look:** thin or action button border, cropped icon edges, a flash when the suggestion changes, fade time and an option to hide the button when there is no suggestion.
+- **Classic and WoW: Forever support** (Vanilla, TBC and Mists).
+
+## [2.0.0] - 2026-10-03 (Español)
+
+### Cambiado
+- **Ya no hace falta una casilla de acción:** la sugerencia se lee de la API de combate asistido (`C_AssistedCombat`). El hechizo del Botón Asistente que la 1.x guardaba en una casilla se quita una vez, al conectar. El método de la casilla sigue disponible en las opciones para clientes donde la API no funcione.
+- La configuración de la 1.x pasa a ser el perfil "Default". La opacidad se ajusta por separado dentro y fuera de combate.
+- El panel de opciones se divide en secciones (perfil, visibilidad, apariencia, posición, sugerencia e idioma) y tiene desplazamiento.
+- `/abv install` solo existe con el método de la casilla.
+
+### Añadido
+- **Perfiles:** compartido, por personaje o por especialización, con copiar y restablecer.
+- **Modo Edición:** el botón se mueve desde el Modo Edición del juego (retail y Forever), con `/abv move` o con el botón Mover de las opciones, aunque esté bloqueado.
+- **Aspecto:** borde fino o de botón de acción, icono recortado, destello al cambiar la sugerencia, tiempo de fundido y opción de ocultarlo cuando no hay sugerencia.
+- **Soporte para Classic y WoW: Forever** (Vanilla, TBC y Mists).
+
 ## [1.2.0] - 2026-10-03
 
 ### Added
