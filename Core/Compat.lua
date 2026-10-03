@@ -1,11 +1,17 @@
 --[[----------------------------------------------------------------------------
     AssistantButtonVisualizer - Compatibility layer
-    Hides the API differences between client versions behind a small interface.
+    Hides the API differences between game flavors behind a small interface.
 
-    The Assistant Button only exists in the mainline client (Midnight, 12.x),
-    but several action bar functions moved into C_ActionBar over time and some
-    combat values may come back as "secret" values that addon code cannot
-    compare. Rule of thumb: always probe for an API instead of assuming it.
+    Supported flavors:
+      retail   Midnight and later (mainline client, 12.x)
+      forever  WoW: Forever ("Camelot"): runs the mainline UI and API but
+               reports a 1.x build and the mainline WOW_PROJECT_ID
+      era      Classic Era / Anniversary realms (legacy classic API)
+      classic  Classic progression realms (TBC, Mists...)
+
+    Some combat values may come back as "secret" values on Midnight, which
+    addon code can hand to widgets but cannot compare. Rule of thumb: always
+    probe for an API instead of branching on the flavor.
 ------------------------------------------------------------------------------]]
 
 local ADDON_NAME, ns = ...
@@ -13,14 +19,38 @@ local ADDON_NAME, ns = ...
 local Compat = {}
 ns.Compat = Compat
 
-local ActionBar = C_ActionBar or {}
+--------------------------------------------------------------------------------
+-- Flavor detection
+--------------------------------------------------------------------------------
 
-local getActionTexture = ActionBar.GetActionTexture or _G.GetActionTexture
-local getActionInfo = ActionBar.GetActionInfo or _G.GetActionInfo
-local isActionInRange = ActionBar.IsActionInRange or _G.IsActionInRange
-local isUsableAction = ActionBar.IsUsableAction or _G.IsUsableAction
-local pickupAction = ActionBar.PickupAction or _G.PickupAction
-local placeAction = ActionBar.PlaceAction or _G.PlaceAction
+local _, _, _, interfaceVersion = GetBuildInfo()
+Compat.interfaceVersion = interfaceVersion or 0
+
+local function DetectFlavor()
+    local projectID = WOW_PROJECT_ID
+    local foreverID = _G.WOW_PROJECT_CAMELOT or _G.WOW_PROJECT_FOREVER
+    if foreverID and projectID == foreverID then
+        return "forever"
+    end
+    if projectID == WOW_PROJECT_MAINLINE then
+        -- Forever shares the mainline project id but ships a 1.x build.
+        if Compat.interfaceVersion < 20000 then
+            return "forever"
+        end
+        return "retail"
+    end
+    if WOW_PROJECT_CLASSIC and projectID == WOW_PROJECT_CLASSIC then
+        return "era"
+    end
+    return "classic"
+end
+
+Compat.flavor = DetectFlavor()
+Compat.isMainlineAPI = Compat.flavor == "retail" or Compat.flavor == "forever"
+
+--------------------------------------------------------------------------------
+-- Generic helpers
+--------------------------------------------------------------------------------
 
 --- Reads a TOC metadata field of this addon.
 function Compat.GetAddOnMetadata(field)
@@ -34,14 +64,134 @@ function Compat.IsSecret(value)
     return _G.issecretvalue ~= nil and _G.issecretvalue(value) == true
 end
 
+--- Returns true while combat restrictions apply to protected actions.
+function Compat.InCombatLockdown()
+    return InCombatLockdown() == true
+end
+
+--- Returns a key that identifies the character: "Name-Realm".
+function Compat.GetCharacterKey()
+    local name = UnitName("player") or "?"
+    local realm = GetRealmName and GetRealmName() or ""
+    return name .. "-" .. realm
+end
+
+--- Returns the name of the active specialization, or nil on clients without
+--- specializations (Vanilla and TBC).
+function Compat.GetSpecName()
+    if not GetSpecialization then
+        return nil
+    end
+    local index = GetSpecialization()
+    if not index then
+        return nil
+    end
+    if GetSpecializationInfo then
+        local _, name = GetSpecializationInfo(index)
+        if name and name ~= "" then
+            return name
+        end
+    end
+    return tostring(index)
+end
+
 --------------------------------------------------------------------------------
--- Action slots
+-- Assisted combat
 --------------------------------------------------------------------------------
 
---- Returns the icon of an action slot, or nil when it is empty.
-function Compat.GetActionTexture(slot)
-    return getActionTexture and getActionTexture(slot)
+local AssistedCombat = C_AssistedCombat
+
+--- Returns true when the client offers the assisted combat suggestions.
+function Compat.HasAssistedCombat()
+    return AssistedCombat ~= nil and AssistedCombat.GetNextCastSpell ~= nil
 end
+
+--- Returns the spell the assisted combat system suggests casting next. The
+--- value may be secret: it can only be handed to the spell functions below.
+function Compat.GetNextCastSpell()
+    if not Compat.HasAssistedCombat() then
+        return nil
+    end
+    local ok, spellID = pcall(AssistedCombat.GetNextCastSpell, false)
+    if ok then
+        return spellID
+    end
+    return nil
+end
+
+--- Returns the id of the Assistant Button spell itself.
+function Compat.GetAssistantSpell()
+    local spellID = AssistedCombat and AssistedCombat.GetActionSpell and AssistedCombat.GetActionSpell()
+    if spellID and not Compat.IsSecret(spellID) then
+        return spellID
+    end
+    return 1229376
+end
+
+--------------------------------------------------------------------------------
+-- Spells
+--------------------------------------------------------------------------------
+
+local getSpellTexture = (C_Spell and C_Spell.GetSpellTexture) or _G.GetSpellTexture
+local isSpellInRange = C_Spell and C_Spell.IsSpellInRange
+local isUsableSpell = (C_Spell and C_Spell.IsSpellUsable) or _G.IsUsableSpell
+
+--- Returns the icon of a spell.
+function Compat.GetSpellTexture(spellID)
+    if not getSpellTexture then
+        return nil
+    end
+    local ok, texture = pcall(getSpellTexture, spellID)
+    if ok then
+        return texture
+    end
+    return nil
+end
+
+--- Returns true, false or nil (no range to check) for a spell on the target.
+--- Secret values are reported as nil, so the button is never tinted wrongly.
+function Compat.IsSpellInRange(spellID)
+    local ok, inRange
+    if isSpellInRange then
+        ok, inRange = pcall(isSpellInRange, spellID, "target")
+    elseif _G.IsSpellInRange and GetSpellInfo then
+        -- Classic clients check the range by name and answer 1, 0 or nil.
+        local name = GetSpellInfo(spellID)
+        if not name then
+            return nil
+        end
+        ok, inRange = pcall(_G.IsSpellInRange, name, "target")
+    else
+        return nil
+    end
+    if not ok or Compat.IsSecret(inRange) or inRange == nil then
+        return nil
+    end
+    return inRange == true or inRange == 1
+end
+
+--- Returns usable, notEnoughPower for a spell. Unknown or secret values are
+--- reported as usable.
+function Compat.IsSpellUsable(spellID)
+    if not isUsableSpell then
+        return true, false
+    end
+    local ok, usable, noPower = pcall(isUsableSpell, spellID)
+    if not ok or Compat.IsSecret(usable) or Compat.IsSecret(noPower) then
+        return true, false
+    end
+    return usable and true or false, noPower and true or false
+end
+
+--------------------------------------------------------------------------------
+-- Action slots (the "slot" source and the clean-up of 1.x)
+--------------------------------------------------------------------------------
+
+local ActionBar = C_ActionBar or {}
+local getActionInfo = ActionBar.GetActionInfo or _G.GetActionInfo
+local getActionTexture = ActionBar.GetActionTexture or _G.GetActionTexture
+local pickupAction = ActionBar.PickupAction or _G.PickupAction
+local placeAction = ActionBar.PlaceAction or _G.PlaceAction
 
 --- Returns the type and id of what an action slot holds ("spell", 1229376).
 function Compat.GetActionInfo(slot)
@@ -51,30 +201,19 @@ function Compat.GetActionInfo(slot)
     return getActionInfo(slot)
 end
 
---- Returns true, false or nil (no range to check) for an action slot.
---- Secret values are reported as nil, so the button is never tinted wrongly.
-function Compat.IsActionInRange(slot)
-    if not isActionInRange then
-        return nil
-    end
-    local ok, inRange = pcall(isActionInRange, slot)
-    if not ok or Compat.IsSecret(inRange) then
-        return nil
-    end
-    return inRange
+--- Returns the icon of an action slot, or nil when it is empty.
+function Compat.GetActionTexture(slot)
+    return getActionTexture and getActionTexture(slot)
 end
 
---- Returns usable, notEnoughPower for an action slot. Unknown or secret
---- values are reported as usable.
-function Compat.IsUsableAction(slot)
-    if not isUsableAction then
-        return true, false
+--- Places what the cursor holds into an action slot. Must not be called in
+--- combat. Returns false when the client has no way to do it.
+function Compat.PlaceAction(slot)
+    if not placeAction then
+        return false
     end
-    local ok, usable, noPower = pcall(isUsableAction, slot)
-    if not ok or Compat.IsSecret(usable) or Compat.IsSecret(noPower) then
-        return true, false
-    end
-    return usable, noPower
+    placeAction(slot)
+    return true
 end
 
 --- Empties an action slot. Must not be called in combat.
@@ -83,35 +222,4 @@ function Compat.ClearAction(slot)
         pickupAction(slot)
         ClearCursor()
     end
-end
-
---- Places a spell into an action slot. Returns true when it was placed.
---- Must not be called in combat.
-function Compat.PlaceSpell(spellID, slot)
-    local pickupSpell = (C_Spell and C_Spell.PickupSpell) or _G.PickupSpell
-    if not (pickupSpell and placeAction) then
-        return false
-    end
-    pickupSpell(spellID)
-    if not GetCursorInfo() then
-        return false
-    end
-    placeAction(slot)
-    ClearCursor()
-    return true
-end
-
---- Returns the spell id when the character knows the spell, otherwise nil.
-function Compat.GetKnownSpellID(spellID)
-    local info = C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(spellID)
-    return info and info.spellID
-end
-
---------------------------------------------------------------------------------
--- Player state
---------------------------------------------------------------------------------
-
---- Returns true while combat restrictions apply to protected actions.
-function Compat.InCombatLockdown()
-    return InCombatLockdown() == true
 end

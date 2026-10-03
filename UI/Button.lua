@@ -1,20 +1,24 @@
 --[[----------------------------------------------------------------------------
     AssistantButtonVisualizer - Button
-    The visualizer: a movable icon that mirrors the action slot holding the
-    Assistant Button spell, so its suggestion can sit anywhere on the screen.
+    The visualizer: a movable icon that shows the spell the assisted combat
+    system suggests, so the suggestion can sit anywhere on the screen.
 
-    The suggested spell and its range change without any event telling addons
-    about them, so the icon and its tint are polled while the button is shown.
-    Whether it is shown is driven by events.
+    The suggestion and its range change without any event telling addons
+    about them, so they are polled while the visibility rules allow the
+    button. Those rules are evaluated on events.
 ------------------------------------------------------------------------------]]
 
 local _, ns = ...
 
 local Button = ns:NewModule("Button")
 local Compat = ns.Compat
+local Assist = ns.Assist
 
-local UPDATE_INTERVAL = 0.1
 local EMPTY_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+local BLIZZARD_BORDER = "Interface\\Buttons\\UI-Quickslot2"
+local BLIZZARD_BORDER_SCALE = 64 / 36   -- the art is drawn for a 36 px button
+local GLOW_TEXTURE = "Interface\\Buttons\\UI-ActionButton-Border"
+local CROP = 0.08
 
 -- Tints used by the default action buttons.
 local COLOR_NORMAL = { 1, 1, 1 }
@@ -23,6 +27,9 @@ local COLOR_NO_POWER = { 0.5, 0.5, 1 }
 local COLOR_UNUSABLE = { 0.4, 0.4, 0.4 }
 
 local inCombat = false
+local shown = false          -- the visibility the button is heading to
+local fadeGoal = 0           -- the alpha the button is heading to
+local lastSuggestion = nil   -- spell id or texture of the last suggestion
 
 --------------------------------------------------------------------------------
 -- Frame
@@ -35,12 +42,43 @@ frame:RegisterForDrag("LeftButton")
 frame:Hide()
 Button.frame = frame
 
+-- Thin border: a black square behind the icon, one pixel larger.
+local background = frame:CreateTexture(nil, "BACKGROUND")
+background:SetColorTexture(0, 0, 0, 1)
+background:SetPoint("TOPLEFT", -1, 1)
+background:SetPoint("BOTTOMRIGHT", 1, -1)
+
 local icon = frame:CreateTexture(nil, "ARTWORK")
 icon:SetAllPoints()
 frame.icon = icon
 
+-- Blizzard border: the frame of the default action buttons.
+local blizzardBorder = frame:CreateTexture(nil, "OVERLAY")
+blizzardBorder:SetTexture(BLIZZARD_BORDER)
+blizzardBorder:SetPoint("CENTER")
+
+-- Pulse shown when the suggestion changes.
+local glow = frame:CreateTexture(nil, "OVERLAY", nil, 1)
+glow:SetTexture(GLOW_TEXTURE)
+glow:SetBlendMode("ADD")
+glow:SetVertexColor(1, 0.85, 0.3)
+glow:SetPoint("CENTER")
+glow:SetAlpha(0)
+
+local pulse = glow:CreateAnimationGroup()
+local fadeIn = pulse:CreateAnimation("Alpha")
+fadeIn:SetFromAlpha(0)
+fadeIn:SetToAlpha(1)
+fadeIn:SetDuration(0.12)
+fadeIn:SetOrder(1)
+local fadeOut = pulse:CreateAnimation("Alpha")
+fadeOut:SetFromAlpha(1)
+fadeOut:SetToAlpha(0)
+fadeOut:SetDuration(0.35)
+fadeOut:SetOrder(2)
+
 frame:SetScript("OnDragStart", function(self)
-    if not ns.settings.locked then
+    if Button.moving or not ns.settings.locked then
         self:StartMoving()
     end
 end)
@@ -54,24 +92,21 @@ frame:SetScript("OnDragStop", function(self)
 end)
 
 --------------------------------------------------------------------------------
--- Appearance
+-- Suggestion
 --------------------------------------------------------------------------------
 
---- Mirrors the icon of the configured slot, or a placeholder when it is empty.
-function Button:UpdateIcon()
-    local texture = Compat.GetActionTexture(ns.settings.slot)
-    icon:SetTexture(texture or EMPTY_ICON)
-    icon:SetDesaturated(texture == nil)
+--- Returns true when the value can be tested (it is not a secret value).
+local function IsPlain(value)
+    return not Compat.IsSecret(value)
 end
 
 --- Tints the icon red out of range, blue without enough power and grey when
---- the action cannot be used, like the default action buttons.
-function Button:UpdateColor()
+--- the spell cannot be used, like the default action buttons.
+local function UpdateColor(spellID)
     local color = COLOR_NORMAL
-    local slot = ns.settings.slot
-    if ns.settings.colorByState and Compat.GetActionTexture(slot) then
-        local usable, noPower = Compat.IsUsableAction(slot)
-        if Compat.IsActionInRange(slot) == false then
+    if ns.settings.colorByState and (Compat.IsSecret(spellID) or spellID ~= nil) then
+        local usable, noPower = Compat.IsSpellUsable(spellID)
+        if Compat.IsSpellInRange(spellID) == false then
             color = COLOR_OUT_OF_RANGE
         elseif noPower then
             color = COLOR_NO_POWER
@@ -82,15 +117,45 @@ function Button:UpdateColor()
     icon:SetVertexColor(color[1], color[2], color[3])
 end
 
-local elapsedSinceUpdate = 0
-frame:SetScript("OnUpdate", function(_, elapsed)
-    elapsedSinceUpdate = elapsedSinceUpdate + elapsed
-    if elapsedSinceUpdate >= UPDATE_INTERVAL then
-        elapsedSinceUpdate = 0
-        Button:UpdateIcon()
-        Button:UpdateColor()
+--- Plays the pulse when the suggestion changed. Secret values cannot be
+--- compared, so they never pulse.
+local function CheckChange(spellID, texture)
+    local key = spellID
+    if not IsPlain(key) or key == nil then
+        key = nil
+        if IsPlain(texture) then
+            key = texture
+        end
     end
-end)
+    if key ~= nil and key ~= lastSuggestion then
+        if lastSuggestion ~= nil and ns.settings.glow then
+            pulse:Stop()
+            pulse:Play()
+        end
+        lastSuggestion = key
+    end
+end
+
+--- Reads the suggestion and draws it. Returns true when there is one.
+function Button:UpdateSuggestion()
+    local texture, spellID = Assist:GetSuggestion()
+    local hasSuggestion = Compat.IsSecret(texture) or texture ~= nil
+    if hasSuggestion then
+        icon:SetTexture(texture)
+        icon:SetDesaturated(false)
+        UpdateColor(spellID)
+        CheckChange(spellID, texture)
+    else
+        icon:SetTexture(EMPTY_ICON)
+        icon:SetDesaturated(true)
+        icon:SetVertexColor(1, 1, 1)
+    end
+    return hasSuggestion
+end
+
+--------------------------------------------------------------------------------
+-- Visibility
+--------------------------------------------------------------------------------
 
 --- Returns true when the player targets something alive that can be attacked.
 local function HasHostileTarget()
@@ -98,10 +163,10 @@ local function HasHostileTarget()
         return false
     end
     local canAttack = UnitCanAttack("player", "target")
-    return not Compat.IsSecret(canAttack) and canAttack == true
+    return IsPlain(canAttack) and canAttack == true
 end
 
--- Visibility modes: return true when the button must be shown.
+-- Visibility modes: return true when the button may be shown.
 local VISIBILITY_TESTS = {
     ALWAYS = function() return true end,
     COMBAT = function() return inCombat end,
@@ -109,8 +174,12 @@ local VISIBILITY_TESTS = {
     INSTANCE = function() return IsInInstance() == true end,
 }
 
---- Returns true when the current settings want the button shown.
-function Button:ShouldShow()
+--- Returns true when the visibility rules allow the button. Whether there is
+--- a suggestion to show is checked separately, while polling.
+function Button:IsAllowed()
+    if self.moving then
+        return true
+    end
     local settings = ns.settings
     if settings.hideMounted and IsMounted() and not inCombat then
         return false
@@ -119,16 +188,95 @@ function Button:ShouldShow()
     return test()
 end
 
---- Shows or hides the button and refreshes its icon.
-function Button:UpdateVisibility()
-    if self:ShouldShow() then
-        self:UpdateIcon()
-        self:UpdateColor()
-        frame:Show()
-    else
-        frame:Hide()
+local function TargetAlpha()
+    if Button.moving then
+        return 1
+    end
+    local settings = ns.settings
+    return inCombat and settings.alphaCombat or settings.alphaOutOfCombat
+end
+
+local function StopFade()
+    if UIFrameFadeRemoveFrame then
+        UIFrameFadeRemoveFrame(frame)
     end
 end
+
+--- Fades the button to `alpha`, then hides it when `hide` is set.
+local function FadeTo(alpha, hide)
+    StopFade()
+    local duration = Button.moving and 0 or ns.settings.fade
+    if duration <= 0 or not UIFrameFade then
+        frame:SetAlpha(alpha)
+        if hide then
+            frame:Hide()
+        end
+        return
+    end
+    UIFrameFade(frame, {
+        mode = alpha >= frame:GetAlpha() and "IN" or "OUT",
+        timeToFade = duration,
+        startAlpha = frame:GetAlpha(),
+        endAlpha = alpha,
+        finishedFunc = hide and function()
+            if not shown then
+                frame:Hide()
+            end
+        end or nil,
+    })
+end
+
+--- Shows or hides the button with the configured fade.
+--- Called on every poll, so a fade only starts when the goal changes.
+local function SetShown(visible)
+    local alpha = visible and TargetAlpha() or 0
+    if visible == shown and alpha == fadeGoal then
+        return
+    end
+    shown = visible
+    fadeGoal = alpha
+    if visible then
+        if not frame:IsShown() then
+            frame:SetAlpha(0)
+            frame:Show()
+        end
+        FadeTo(TargetAlpha())
+    elseif frame:IsShown() then
+        FadeTo(0, true)
+    end
+end
+
+--- Evaluates every rule and shows the button accordingly.
+function Button:Update()
+    if not self:IsAllowed() then
+        self.poller:Hide()
+        SetShown(false)
+        return
+    end
+    self.poller:Show()
+    local hasSuggestion = self:UpdateSuggestion()
+    SetShown(hasSuggestion or self.moving or not ns.settings.hideWithoutSuggestion)
+end
+
+-- Polls the suggestion while the rules allow the button, even when it is
+-- hidden because there is nothing to suggest.
+local poller = CreateFrame("Frame")
+poller:Hide()
+Button.poller = poller
+local elapsedSinceUpdate = 0
+poller:SetScript("OnUpdate", function(_, elapsed)
+    elapsedSinceUpdate = elapsedSinceUpdate + elapsed
+    if elapsedSinceUpdate >= Button.interval then
+        elapsedSinceUpdate = 0
+        local hasSuggestion = Button:UpdateSuggestion()
+        SetShown(hasSuggestion or Button.moving or not ns.settings.hideWithoutSuggestion)
+    end
+end)
+Button.interval = 0.1
+
+--------------------------------------------------------------------------------
+-- Appearance
+--------------------------------------------------------------------------------
 
 function Button:ApplyPosition()
     local settings = ns.settings
@@ -136,13 +284,36 @@ function Button:ApplyPosition()
     frame:SetPoint(settings.point, UIParent, settings.relativePoint, settings.x, settings.y)
 end
 
---- Applies every saved setting to the frame.
-function Button:ApplySettings()
+--- Applies the look of the active profile.
+function Button:ApplyStyle()
     local settings = ns.settings
-    frame:SetSize(settings.size, settings.size)
-    frame:SetAlpha(settings.alpha)
-    frame:EnableMouse(not settings.locked)
-    self:UpdateVisibility()
+    local size = settings.size
+    frame:SetSize(size, size)
+
+    if settings.cropIcon then
+        icon:SetTexCoord(CROP, 1 - CROP, CROP, 1 - CROP)
+    else
+        icon:SetTexCoord(0, 1, 0, 1)
+    end
+
+    background:SetShown(settings.border == "thin")
+    blizzardBorder:SetShown(settings.border == "blizzard")
+    blizzardBorder:SetSize(size * BLIZZARD_BORDER_SCALE, size * BLIZZARD_BORDER_SCALE)
+    glow:SetSize(size * 1.9, size * 1.9)
+end
+
+--- Applies every setting of the active profile to the frame.
+function Button:ApplySettings()
+    self.interval = Assist:GetInterval()
+    self:ApplyStyle()
+    frame:EnableMouse(self.moving or not ns.settings.locked)
+    self:Update()
+end
+
+--- Lets the button be dragged and keeps it visible (used by the mover).
+function Button:SetMoving(moving)
+    self.moving = moving and true or false
+    self:ApplySettings()
 end
 
 --------------------------------------------------------------------------------
@@ -154,35 +325,37 @@ function Button:OnLogin()
     self:ApplyPosition()
     self:ApplySettings()
 
-    local function Refresh()
-        self:UpdateVisibility()
+    local function Update()
+        self:Update()
     end
     ns:RegisterEvent("PLAYER_REGEN_DISABLED", function()
         inCombat = true
-        Refresh()
+        Update()
     end)
     ns:RegisterEvent("PLAYER_REGEN_ENABLED", function()
         inCombat = false
-        Refresh()
+        Update()
     end)
-    ns:RegisterEvent("PLAYER_ENTERING_WORLD", Refresh)
-    ns:RegisterEvent("PLAYER_TARGET_CHANGED", Refresh)
-    ns:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED", Refresh)
+    ns:RegisterEvent("PLAYER_ENTERING_WORLD", Update)
+    ns:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
+    ns:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED", Update)
     ns:RegisterEvent("UNIT_FLAGS", function(_, unit)
         if unit == "target" then
-            Refresh()
-        end
-    end)
-    ns:RegisterEvent("ACTIONBAR_SLOT_CHANGED", function(_, slot)
-        if slot == 0 or slot == ns.settings.slot then
-            Refresh()
+            Update()
         end
     end)
 
     ns:RegisterMessage("ABV_SETTINGS_CHANGED", function()
         self:ApplySettings()
     end)
-    ns:RegisterMessage("ABV_SLOT_CHANGED", Refresh)
+    ns:RegisterMessage("ABV_SOURCE_CHANGED", function()
+        lastSuggestion = nil
+        self:ApplySettings()
+    end)
+    ns:RegisterMessage("ABV_PROFILE_CHANGED", function()
+        self:ApplyPosition()
+        self:ApplySettings()
+    end)
     ns:RegisterMessage("ABV_POSITION_CHANGED", function()
         self:ApplyPosition()
     end)

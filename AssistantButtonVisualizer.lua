@@ -24,8 +24,8 @@ end)
 local function PrintHelp()
     local L = ns.L
     ns:Print(L["HELP_HEADER"])
-    for _, line in ipairs({ "HELP_OPTIONS", "HELP_RESET", "HELP_INSTALL", "HELP_HELP" }) do
-        DEFAULT_CHAT_FRAME:AddMessage("  " .. L[line]:format(ns.settings.slot))
+    for _, line in ipairs({ "HELP_OPTIONS", "HELP_MOVE", "HELP_RESET", "HELP_HELP" }) do
+        DEFAULT_CHAT_FRAME:AddMessage("  " .. L[line])
     end
 end
 
@@ -37,9 +37,11 @@ SlashCmdList.ASSISTANTBUTTONVISUALIZER = function(input)
     elseif command == "reset" then
         ns.Database:ResetPosition()
         ns:Print(ns.L["POSITION_RESET"])
-    elseif command == "install" then
+    elseif command == "move" then
+        ns.Mover:Toggle()
+    elseif command == "install" and ns.Assist:GetSource() == "slot" then
         ns:Print(ns.L["FORCING_MANUAL"])
-        ns.Installer:Install(true)
+        ns.Assist:Install(true)
     else
         PrintHelp()
     end

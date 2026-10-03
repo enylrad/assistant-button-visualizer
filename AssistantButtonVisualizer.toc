@@ -1,4 +1,4 @@
-## Interface: 120100, 120105
+## Interface: 120100, 120105, 16001, 11509, 11508, 20506, 20505, 50504, 50503
 ## Title: |cff3fd47bAssistant Button|r Visualizer
 ## Notes: Shows the Assistant Button suggestion anywhere on the screen.
 ## Notes-esES: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
@@ -28,9 +28,11 @@ Locales\esES.lua
 Core\Locale.lua
 Core\Compat.lua
 Core\Database.lua
-Core\Installer.lua
+Core\Assist.lua
 
+UI\Widgets.lua
 UI\Button.lua
+UI\Mover.lua
 UI\Options.lua
 
 AssistantButtonVisualizer.lua

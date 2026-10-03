@@ -1,19 +1,24 @@
 --[[----------------------------------------------------------------------------
     AssistantButtonVisualizer - Options panel
-    Registered in the game's AddOns settings. Tunes how the button looks, when
-    it is shown and which action slot holds the Assistant Button spell.
+    Registered in the game's AddOns settings. Sections: profile, visibility,
+    appearance, position, suggestion source and language.
 
-    Built with stock Blizzard templates of the mainline UI.
+    Built from the factory in UI\Widgets.lua, so it works with the templates
+    of every supported client.
 ------------------------------------------------------------------------------]]
 
 local _, ns = ...
 
 local Options = ns:NewModule("Options")
 local Database = ns.Database
-local Installer = ns.Installer
+local Assist = ns.Assist
+local Mover = ns.Mover
+local Widgets = ns.Widgets
 local L = ns.L
 
-local CONTENT_WIDTH = 560
+local CONTENT_WIDTH = 580
+local COLUMN = 300          -- x offset of the second column
+local LINE = 28             -- height of a checkbox row
 
 --------------------------------------------------------------------------------
 -- Helpers
@@ -23,109 +28,20 @@ local function Notify()
     ns:SendMessage("ABV_SETTINGS_CHANGED")
 end
 
--- Font strings whose text follows the active locale: { fontString, key }.
-local localizedTexts = {}
-
-local function SetLocalizedText(fontString, key)
-    localizedTexts[#localizedTexts + 1] = { fontString, key }
-    fontString:SetText(L[key])
+--- Getter and setter of a profile setting.
+local function ProfileValue(key)
+    return function() return ns.settings[key] end,
+        function(value) ns.settings[key] = value; Notify() end
 end
 
-local function CreateText(parent, template, key)
-    local text = parent:CreateFontString(nil, "ARTWORK", template or "GameFontHighlight")
-    text:SetJustifyH("LEFT")
-    if key then
-        SetLocalizedText(text, key)
-    end
-    return text
-end
-
-local function CreateButton(parent, width, key, onClick)
-    local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
-    button:SetSize(width, 22)
-    if key then
-        SetLocalizedText(button:GetFontString(), key)
-    end
-    button:SetScript("OnClick", onClick)
-    return button
-end
-
-local function CreateCheckbox(parent, key, getValue, setValue)
-    local checkbox = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
-    checkbox:SetSize(26, 26)
-    local label = checkbox.Text or checkbox.text
-    if label then
-        label:SetFontObject("GameFontHighlight")
-        SetLocalizedText(label, key)
-    end
-    checkbox:SetScript("OnClick", function(self)
-        setValue(self:GetChecked() and true or false)
-    end)
-    checkbox.Refresh = function(self)
-        self:SetChecked(getValue())
-    end
-    return checkbox
-end
-
---- Creates a dropdown. `buildOptions` returns a list of { value, label } and
---- is evaluated every time the menu is generated.
-local function CreateDropdown(parent, width, buildOptions, getValue, setValue)
-    local dropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
-    dropdown:SetWidth(width)
-    dropdown:SetupMenu(function(_, root)
-        for _, option in ipairs(buildOptions()) do
-            root:CreateRadio(option.label,
-                function(value) return getValue() == value end,
-                function(value) setValue(value) end,
-                option.value)
+local function ListOptions(values, prefix)
+    return function()
+        local options = {}
+        for _, value in ipairs(values) do
+            options[#options + 1] = { value = value, label = L[prefix .. value] }
         end
-    end)
-    return dropdown
-end
-
---- Creates a captioned slider with stepper arrows and its value on the right.
-local function CreateSlider(parent, key, minValue, maxValue, step, format, getValue, setValue)
-    local holder = CreateFrame("Frame", nil, parent)
-    holder:SetSize(260, 40)
-    local caption = CreateText(holder, "GameFontNormal", key)
-    caption:SetPoint("TOPLEFT")
-
-    local slider = CreateFrame("Frame", nil, holder, "MinimalSliderWithSteppersTemplate")
-    slider:SetPoint("BOTTOMLEFT", 0, 0)
-    slider:SetPoint("BOTTOMRIGHT", -44, 0)
-    slider:SetHeight(20)
-
-    local mixin = MinimalSliderWithSteppersMixin
-    local steps = math.max(1, math.floor((maxValue - minValue) / step + 0.5))
-    slider:Init(getValue(), minValue, maxValue, steps, {
-        [mixin.Label.Right] = format,
-    })
-
-    local updating = false
-    slider:RegisterCallback(mixin.Event.OnValueChanged, function(_, value)
-        if not updating then
-            setValue(ns.Round(ns.Round(value / step) * step, 2))
-        end
-    end, holder)
-
-    holder.Refresh = function()
-        updating = true
-        slider:SetValue(getValue())
-        updating = false
+        return options
     end
-    return holder
-end
-
---------------------------------------------------------------------------------
--- Panel
---------------------------------------------------------------------------------
-
-local function VisibilityOptions()
-    local options = {}
-    for _, mode in ipairs(Database.VISIBILITY_MODES) do
-        options[#options + 1] = { value = mode, label = L["VISIBILITY_" .. mode] }
-    end
-    return options
 end
 
 local function LocaleOptions()
@@ -136,110 +52,215 @@ local function LocaleOptions()
     return options
 end
 
+local function OtherProfileOptions()
+    local options = {}
+    for _, name in ipairs(Database:GetProfileNames()) do
+        if name ~= Database.activeProfile then
+            options[#options + 1] = { value = name, label = name }
+        end
+    end
+    return options
+end
+
+local function Percent(value)
+    return ("%d%%"):format(ns.Round(value * 100))
+end
+
+local function Seconds(value)
+    return ("%.1f s"):format(value)
+end
+
+--------------------------------------------------------------------------------
+-- Panel
+--------------------------------------------------------------------------------
+
 function Options:BuildPanel(panel)
     local widgets = {}
     self.widgets = widgets
+
+    local scrollTemplate = Widgets.HasTemplate("ScrollFrameTemplate") and "ScrollFrameTemplate" or "UIPanelScrollFrameTemplate"
+    local scrollFrame = CreateFrame("ScrollFrame", nil, panel, scrollTemplate)
+    scrollFrame:SetPoint("TOPLEFT", 0, -4)
+    scrollFrame:SetPoint("BOTTOMRIGHT", -26, 4)
+    local content = CreateFrame("Frame", nil, scrollFrame)
+    content:SetSize(CONTENT_WIDTH + 32, 900)
+    scrollFrame:SetScrollChild(content)
+
     local x = 16
+    local y = -12
 
-    local title = CreateText(panel, "GameFontNormalHuge")
-    title:SetPoint("TOPLEFT", x, -16)
+    local title = Widgets.CreateText(content, "GameFontNormalHuge")
+    title:SetPoint("TOPLEFT", x, y)
     title:SetText(ns.coloredTitle)
-
-    local version = CreateText(panel, "GameFontDisable")
+    local version = Widgets.CreateText(content, "GameFontDisable")
     version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 8, 2)
     version:SetText("v" .. (ns.Compat.GetAddOnMetadata("Version") or "?"))
 
-    local subtitle = CreateText(panel, "GameFontHighlightSmall", "OPTIONS_SUBTITLE")
-    subtitle:SetPoint("TOPLEFT", x, -46)
+    local subtitle = Widgets.CreateText(content, "GameFontHighlightSmall", "OPTIONS_SUBTITLE")
+    subtitle:SetPoint("TOPLEFT", x, y - 30)
     subtitle:SetWidth(CONTENT_WIDTH)
     subtitle:SetWordWrap(true)
+    y = y - 70
 
-    ------------------------------------------------------------------ Display
-    widgets.locked = CreateCheckbox(panel, "OPT_LOCK",
-        function() return ns.settings.locked end,
-        function(value) ns.settings.locked = value; Notify() end)
-    widgets.locked:SetPoint("TOPLEFT", x - 4, -80)
+    local function Header(key)
+        local header = Widgets.CreateHeader(content, key)
+        header:SetPoint("TOPLEFT", x, y)
+        y = y - 28
+    end
 
-    widgets.colorByState = CreateCheckbox(panel, "OPT_COLOR_BY_STATE",
-        function() return ns.settings.colorByState end,
-        function(value) ns.settings.colorByState = value; Notify() end)
-    widgets.colorByState:SetPoint("TOPLEFT", x - 4, -128)
+    local function Caption(key, offset)
+        local caption = Widgets.CreateText(content, "GameFontNormal", key)
+        caption:SetPoint("TOPLEFT", x + (offset or 0), y)
+        return caption
+    end
 
-    widgets.hideMounted = CreateCheckbox(panel, "OPT_HIDE_MOUNTED",
-        function() return ns.settings.hideMounted end,
-        function(value) ns.settings.hideMounted = value; Notify() end)
-    widgets.hideMounted:SetPoint("TOPLEFT", x - 4, -104)
+    local function Checkbox(name, key, offset)
+        local getValue, setValue = ProfileValue(name)
+        local checkbox = Widgets.CreateCheckbox(content, key, getValue, setValue)
+        checkbox:SetPoint("TOPLEFT", x - 4 + (offset or 0), y)
+        widgets[name] = checkbox
+        return checkbox
+    end
 
-    local visibilityCaption = CreateText(panel, "GameFontNormal", "OPT_VISIBILITY")
-    visibilityCaption:SetPoint("TOPLEFT", x, -168)
-    widgets.visibility = CreateDropdown(panel, 200, VisibilityOptions,
-        function() return ns.settings.visibility end,
-        function(value) ns.settings.visibility = value; Notify() end)
-    widgets.visibility:SetPoint("TOPLEFT", x, -186)
-
-    local languageCaption = CreateText(panel, "GameFontNormal", "OPT_LANGUAGE")
-    languageCaption:SetPoint("TOPLEFT", x + 300, -168)
-    widgets.language = CreateDropdown(panel, 200, LocaleOptions,
-        function() return ns.settings.locale end,
+    ------------------------------------------------------------------ Profile
+    Header("SECTION_PROFILE")
+    Caption("OPT_PROFILE_MODE")
+    Caption("OPT_PROFILE_COPY", COLUMN)
+    y = y - 18
+    widgets.mode = Widgets.CreateDropdown(content, 220, ListOptions(Database.MODES, "PROFILE_MODE_"),
+        function() return Database:GetMode() end,
+        function(value) Database:SetMode(value) end)
+    widgets.mode:SetPoint("TOPLEFT", x, y)
+    widgets.copy = Widgets.CreateDropdown(content, 220, OtherProfileOptions,
+        function() return nil end,
         function(value)
-            ns.settings.locale = value
+            Database:CopyFrom(value)
+            ns:Print(L["PROFILE_COPIED"], value)
+        end)
+    widgets.copy:SetPoint("TOPLEFT", x + COLUMN, y)
+    Widgets.SetPlaceholder(widgets.copy, "OPT_PROFILE_COPY_PICK")
+    y = y - 32
+    widgets.activeProfile = Widgets.CreateText(content, "GameFontHighlightSmall")
+    widgets.activeProfile:SetPoint("TOPLEFT", x, y - 4)
+    widgets.resetProfile = Widgets.CreateButton(content, 180, "OPT_PROFILE_RESET", function()
+        Database:ResetProfile()
+        ns:Print(L["PROFILE_RESET_DONE"])
+    end)
+    widgets.resetProfile:SetPoint("TOPLEFT", x + COLUMN, y)
+    y = y - 40
+
+    ------------------------------------------------------------------ Visibility
+    Header("SECTION_VISIBILITY")
+    Caption("OPT_VISIBILITY")
+    y = y - 18
+    widgets.visibility = Widgets.CreateDropdown(content, 220, ListOptions(Database.VISIBILITY_MODES, "VISIBILITY_"),
+        ProfileValue("visibility"))
+    widgets.visibility:SetPoint("TOPLEFT", x, y)
+    Checkbox("hideMounted", "OPT_HIDE_MOUNTED", COLUMN)
+    y = y - LINE
+    Checkbox("hideWithoutSuggestion", "OPT_HIDE_EMPTY", COLUMN)
+    y = y - LINE - 12
+
+    ------------------------------------------------------------------ Appearance
+    Header("SECTION_APPEARANCE")
+    widgets.size = Widgets.CreateSlider(content, "OPT_SIZE", Database.MIN_SIZE, Database.MAX_SIZE, 1,
+        function(value) return tostring(ns.Round(value)) end, ProfileValue("size"))
+    widgets.size:SetPoint("TOPLEFT", x, y)
+    widgets.fade = Widgets.CreateSlider(content, "OPT_FADE", 0, Database.MAX_FADE, 0.1, Seconds, ProfileValue("fade"))
+    widgets.fade:SetPoint("TOPLEFT", x + COLUMN, y)
+    y = y - 52
+    widgets.alphaCombat = Widgets.CreateSlider(content, "OPT_ALPHA_COMBAT", 0.1, 1, 0.05, Percent, ProfileValue("alphaCombat"))
+    widgets.alphaCombat:SetPoint("TOPLEFT", x, y)
+    widgets.alphaOutOfCombat = Widgets.CreateSlider(content, "OPT_ALPHA_OOC", 0, 1, 0.05, Percent, ProfileValue("alphaOutOfCombat"))
+    widgets.alphaOutOfCombat:SetPoint("TOPLEFT", x + COLUMN, y)
+    y = y - 56
+    Caption("OPT_BORDER")
+    y = y - 18
+    widgets.border = Widgets.CreateDropdown(content, 220, ListOptions(Database.BORDERS, "BORDER_"), ProfileValue("border"))
+    widgets.border:SetPoint("TOPLEFT", x, y)
+    Checkbox("cropIcon", "OPT_CROP", COLUMN)
+    y = y - LINE
+    Checkbox("glow", "OPT_GLOW", COLUMN)
+    y = y - LINE
+    Checkbox("colorByState", "OPT_COLOR_BY_STATE", COLUMN)
+    y = y - LINE - 12
+
+    ------------------------------------------------------------------ Position
+    Header("SECTION_POSITION")
+    Checkbox("locked", "OPT_LOCK")
+    y = y - LINE - 4
+    widgets.move = Widgets.CreateButton(content, 180, nil, function()
+        Mover:Toggle()
+    end)
+    widgets.move:SetPoint("TOPLEFT", x, y)
+    widgets.center = Widgets.CreateButton(content, 180, "OPT_RESET_POSITION", function()
+        Database:ResetPosition()
+        ns:Print(L["POSITION_RESET"])
+    end)
+    widgets.center:SetPoint("LEFT", widgets.move, "RIGHT", 10, 0)
+    y = y - 28
+    if Mover:HasEditMode() then
+        local editModeHelp = Widgets.CreateText(content, "GameFontDisableSmall", "OPT_EDIT_MODE_HELP")
+        editModeHelp:SetPoint("TOPLEFT", x, y)
+        editModeHelp:SetWidth(CONTENT_WIDTH)
+        editModeHelp:SetWordWrap(true)
+        y = y - 24
+    end
+    y = y - 12
+
+    ------------------------------------------------------------------ Source
+    Header("SECTION_SOURCE")
+    Caption("OPT_SOURCE")
+    Caption("OPT_LANGUAGE", COLUMN)
+    y = y - 18
+    widgets.source = Widgets.CreateDropdown(content, 220, ListOptions(Database.SOURCES, "SOURCE_"),
+        function() return ns.global.source end,
+        function(value) Assist:SetSource(value) end)
+    widgets.source:SetPoint("TOPLEFT", x, y)
+    widgets.language = Widgets.CreateDropdown(content, 220, LocaleOptions,
+        function() return ns.global.locale end,
+        function(value)
+            ns.global.locale = value
             ns:SetLocale(value)
         end)
-    widgets.language:SetPoint("TOPLEFT", x + 300, -186)
+    widgets.language:SetPoint("TOPLEFT", x + COLUMN, y)
+    y = y - 34
+    local sourceHelp = Widgets.CreateText(content, "GameFontDisableSmall", "OPT_SOURCE_HELP")
+    sourceHelp:SetPoint("TOPLEFT", x, y)
+    sourceHelp:SetWidth(CONTENT_WIDTH)
+    sourceHelp:SetWordWrap(true)
+    y = y - 40
 
-    widgets.alpha = CreateSlider(panel, "OPT_OPACITY", 0.1, 1, 0.05,
-        function(value) return ("%d%%"):format(ns.Round(value * 100)) end,
-        function() return ns.settings.alpha end,
-        function(value) ns.settings.alpha = value; Notify() end)
-    widgets.alpha:SetPoint("TOPLEFT", x, -230)
-
-    widgets.size = CreateSlider(panel, "OPT_SIZE", Database.MIN_SIZE, Database.MAX_SIZE, 1,
+    -- The action slot only matters for the slot source. It is staged and
+    -- applied with a button: moving the slider would otherwise clear and fill
+    -- every slot it passes over.
+    widgets.slot = Widgets.CreateSlider(content, "OPT_SLOT", Database.MIN_SLOT, Database.MAX_SLOT, 1,
         function(value) return tostring(ns.Round(value)) end,
-        function() return ns.settings.size end,
-        function(value) ns.settings.size = value; Notify() end)
-    widgets.size:SetPoint("TOPLEFT", x + 300, -230)
-
-    ------------------------------------------------------------------ Slot
-    -- The slot is staged and applied with a button: moving the slider would
-    -- otherwise clear and fill every slot it passes over.
-    widgets.slot = CreateSlider(panel, "OPT_SLOT", Database.MIN_SLOT, Database.MAX_SLOT, 1,
-        function(value) return tostring(ns.Round(value)) end,
-        function() return self.pendingSlot or ns.settings.slot end,
+        function() return self.pendingSlot or ns.global.slot end,
         function(value)
             self.pendingSlot = value
             if widgets.apply then
-                widgets.apply:SetEnabled(value ~= ns.settings.slot)
+                widgets.apply:SetEnabled(value ~= ns.global.slot)
             end
         end)
-    widgets.slot:SetPoint("TOPLEFT", x, -294)
-
-    widgets.apply = CreateButton(panel, 100, "OPT_APPLY", function()
+    widgets.slot:SetPoint("TOPLEFT", x, y)
+    widgets.apply = Widgets.CreateButton(content, 100, "OPT_APPLY", function()
         local slot = self.pendingSlot
         self.pendingSlot = nil
-        if slot and slot ~= ns.settings.slot then
-            Installer:SetSlot(slot)
+        if slot and slot ~= ns.global.slot then
+            Assist:SetSlot(slot)
             ns:Print(L["APPLIED_NEW_SLOT"], slot)
         end
         self:Refresh()
     end)
     widgets.apply:SetPoint("BOTTOMLEFT", widgets.slot, "BOTTOMRIGHT", 10, -1)
-
-    local slotHelp = CreateText(panel, "GameFontDisableSmall", "OPT_SLOT_HELP")
-    slotHelp:SetPoint("TOPLEFT", x, -342)
-    slotHelp:SetWidth(CONTENT_WIDTH)
-    slotHelp:SetWordWrap(true)
-
-    ------------------------------------------------------------------ Actions
-    widgets.install = CreateButton(panel, 180, "OPT_INSTALL", function()
-        Installer:Install(true)
+    widgets.install = Widgets.CreateButton(content, 180, "OPT_INSTALL", function()
+        Assist:Install(true)
     end)
-    widgets.install:SetPoint("TOPLEFT", x, -398)
+    widgets.install:SetPoint("LEFT", widgets.apply, "RIGHT", 10, 0)
+    y = y - 56
 
-    widgets.resetPosition = CreateButton(panel, 180, "OPT_RESET_POSITION", function()
-        Database:ResetPosition()
-        ns:Print(L["POSITION_RESET"])
-    end)
-    widgets.resetPosition:SetPoint("LEFT", widgets.install, "RIGHT", 10, 0)
+    content:SetHeight(-y + 16)
 end
 
 function Options:Refresh()
@@ -247,18 +268,22 @@ function Options:Refresh()
     if not widgets then
         return
     end
-    for _, entry in ipairs(localizedTexts) do
-        entry[1]:SetText(L[entry[2]])
+    Widgets.RefreshTexts()
+    for _, name in ipairs({
+        "mode", "copy", "visibility", "hideMounted", "hideWithoutSuggestion", "size", "fade",
+        "alphaCombat", "alphaOutOfCombat", "border", "cropIcon", "glow", "colorByState",
+        "locked", "source", "language", "slot",
+    }) do
+        widgets[name]:Refresh()
     end
-    widgets.locked:Refresh()
-    widgets.colorByState:Refresh()
-    widgets.hideMounted:Refresh()
-    widgets.visibility:GenerateMenu()
-    widgets.language:GenerateMenu()
-    widgets.alpha:Refresh()
-    widgets.size:Refresh()
-    widgets.slot:Refresh()
-    widgets.apply:SetEnabled(self.pendingSlot ~= nil and self.pendingSlot ~= ns.settings.slot)
+    widgets.activeProfile:SetText(L["PROFILE_ACTIVE"]:format(Database.activeProfile or "?"))
+    widgets.move:SetText(Mover.active and L["OPT_MOVE_DONE"] or L["OPT_MOVE"])
+
+    local usesSlot = Assist:GetSource() == "slot"
+    widgets.slot:SetShown(usesSlot)
+    widgets.apply:SetShown(usesSlot)
+    widgets.install:SetShown(usesSlot)
+    widgets.apply:SetEnabled(self.pendingSlot ~= nil and self.pendingSlot ~= ns.global.slot)
 end
 
 function Options:OnInitialize()
@@ -276,26 +301,22 @@ function Options:OnInitialize()
         self.pendingSlot = nil
     end)
     self.panel = panel
-
-    if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
-        local category = Settings.RegisterCanvasLayoutCategory(panel, ns.title)
-        Settings.RegisterAddOnCategory(category)
-        self.category = category
-    end
+    self.category = Widgets.RegisterPanel(panel, ns.title)
 
     local function RefreshIfShown()
         if panel:IsShown() then
             self:Refresh()
         end
     end
-    ns:RegisterMessage("ABV_SETTINGS_CHANGED", RefreshIfShown)
-    ns:RegisterMessage("ABV_LOCALE_CHANGED", RefreshIfShown)
+    for _, message in ipairs({
+        "ABV_SETTINGS_CHANGED", "ABV_LOCALE_CHANGED", "ABV_PROFILE_CHANGED",
+        "ABV_SOURCE_CHANGED", "ABV_MOVER_CHANGED",
+    }) do
+        ns:RegisterMessage(message, RefreshIfShown)
+    end
 end
 
 --- Opens the game settings on this addon's page.
 function Options:Open()
-    if self.category and Settings and Settings.OpenToCategory then
-        local id = self.category.GetID and self.category:GetID() or self.category.ID
-        Settings.OpenToCategory(id)
-    end
+    Widgets.OpenPanel(self.panel, self.category)
 end
