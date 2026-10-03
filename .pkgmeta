@@ -1,0 +1,8 @@
+# Packaging metadata for the BigWigs packager (CurseForge / Wago / WoWInterface).
+package-as: AssistantButtonVisualizer
+
+ignore:
+  - tools
+  - README.md
+  - .gitattributes
+  - .gitignore
