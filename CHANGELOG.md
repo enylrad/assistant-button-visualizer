@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-10-03
+
+### Added
+- **Range and usability tint:** the button turns red out of range, blue without enough power and grey when the action cannot be used. Can be turned off.
+- **Visibility modes:** "With a hostile target" and "In instances", plus an option to hide the button while mounted out of combat.
+- **Addon language:** picker in the options (game language, English or Spanish).
+- **Minimap addon menu entry**, and `/abv` now opens the options (`/abv help` lists the commands).
+- Packaging and link scripts in `tools/`.
+
+### Changed
+- Support for WoW 12.1 (Interface 120100 and 120105).
+- The addon was split into modules following RolePing and XPLedger. Settings from 1.1.x are migrated.
+- The options panel uses the current Blizzard templates.
+
+### Fixed
+- An error on a fresh install, when the button read the settings before they existed.
+- A slot changed in combat was never applied; it now moves when combat ends.
+- Changing the slot cleared the previous one even when it no longer held a spell.
+- "Frame Locked" was printed on every login.
+- The help showed slot 88 instead of the configured slot.
+- An empty slot forced the button to full opacity.
+
+## [1.2.0] - 2026-10-03 (Español)
+
+### Añadido
+- **Color según alcance y uso:** el botón se vuelve rojo fuera de alcance, azul sin recurso suficiente y gris si la acción no se puede usar. Se puede desactivar.
+- **Modos de visibilidad:** "Con un objetivo hostil" y "En instancias", y opción para ocultarlo en montura fuera de combate.
+- **Idioma del addon:** selector en las opciones (idioma del juego, inglés o español).
+- **Entrada en el menú de addons del minimapa**; `/abv` abre las opciones (`/abv help` muestra los comandos).
+- Scripts de empaquetado y enlace en `tools/`.
+
+### Cambiado
+- Soporte para WoW 12.1 (Interface 120100 y 120105).
+- El addon se ha dividido en módulos como RolePing y XPLedger. La configuración de 1.1.x se migra.
+- El panel de opciones usa las plantillas actuales de Blizzard.
+
+### Corregido
+- Un error en instalaciones nuevas al leer la configuración antes de existir.
+- Un cambio de casilla en combate nunca se aplicaba; ahora se hace al terminar el combate.
+- Al cambiar de casilla se vaciaba la anterior aunque ya no tuviera un hechizo.
+- Se mostraba "Frame Locked" en cada inicio de sesión.
+- La ayuda mostraba la casilla 88 en lugar de la configurada.
+- Una casilla vacía forzaba el botón a opacidad completa.
+
 ## [1.1.1] - 2026-01-27
 
 ### Added

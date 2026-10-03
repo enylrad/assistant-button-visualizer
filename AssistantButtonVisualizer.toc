@@ -1,10 +1,10 @@
-## Interface: 120000, 120001
+## Interface: 120100, 120105
 ## Title: |cff3fd47bAssistant Button|r Visualizer
 ## Notes: Shows the Assistant Button suggestion anywhere on the screen.
 ## Notes-esES: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
 ## Notes-esMX: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
 ## Author: enylrad
-## Version: 1.1.1
+## Version: 1.2.0
 ## Category: User Interface
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
