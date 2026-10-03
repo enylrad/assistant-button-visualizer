@@ -20,6 +20,16 @@ local BLIZZARD_BORDER_SCALE = 64 / 36   -- the art is drawn for a 36 px button
 local GLOW_TEXTURE = "Interface\\Buttons\\UI-ActionButton-Border"
 local CROP = 0.08
 
+-- Masks that give the icon its shape (made by tools\make-masks.ps1). The
+-- square shape uses no mask.
+local MEDIA = "Interface\\AddOns\\" .. ns.name .. "\\Media\\"
+local SHAPE_MASKS = {
+    rounded = MEDIA .. "Rounded",
+    circle = MEDIA .. "Circle",
+    soft = MEDIA .. "SoftCircle",
+}
+local SOFT_GLOW = MEDIA .. "SoftCircle"
+
 -- Tints used by the default action buttons.
 local COLOR_NORMAL = { 1, 1, 1 }
 local COLOR_OUT_OF_RANGE = { 0.8, 0.1, 0.1 }
@@ -42,7 +52,7 @@ frame:RegisterForDrag("LeftButton")
 frame:Hide()
 Button.frame = frame
 
--- Thin border: a black square behind the icon, one pixel larger.
+-- Thin border: a black shape behind the icon, one pixel larger.
 local background = frame:CreateTexture(nil, "BACKGROUND")
 background:SetColorTexture(0, 0, 0, 1)
 background:SetPoint("TOPLEFT", -1, 1)
@@ -51,6 +61,19 @@ background:SetPoint("BOTTOMRIGHT", 1, -1)
 local icon = frame:CreateTexture(nil, "ARTWORK")
 icon:SetAllPoints()
 frame.icon = icon
+
+--- Creates a mask that covers `texture`, or nil on clients without masks.
+local function CreateMask(texture)
+    if not frame.CreateMaskTexture then
+        return nil
+    end
+    local mask = frame:CreateMaskTexture()
+    mask:SetAllPoints(texture)
+    return mask
+end
+
+local iconMask = CreateMask(icon)
+local backgroundMask = CreateMask(background)
 
 -- Blizzard border: the frame of the default action buttons.
 local blizzardBorder = frame:CreateTexture(nil, "OVERLAY")
@@ -284,6 +307,22 @@ function Button:ApplyPosition()
     frame:SetPoint(settings.point, UIParent, settings.relativePoint, settings.x, settings.y)
 end
 
+--- Puts a mask with the given file on a texture, or takes it off (nil).
+local function SetMask(texture, mask, file)
+    if not mask then
+        return
+    end
+    if texture.maskFile then
+        texture:RemoveMaskTexture(mask)
+        texture.maskFile = nil
+    end
+    if file then
+        mask:SetTexture(file, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+        texture:AddMaskTexture(mask)
+        texture.maskFile = file
+    end
+end
+
 --- Applies the look of the active profile.
 function Button:ApplyStyle()
     local settings = ns.settings
@@ -296,10 +335,36 @@ function Button:ApplyStyle()
         icon:SetTexCoord(0, 1, 0, 1)
     end
 
-    background:SetShown(settings.border == "thin")
-    blizzardBorder:SetShown(settings.border == "blizzard")
+    -- Without mask support every shape falls back to the square.
+    local shape = iconMask and settings.shape or "square"
+    local maskFile = SHAPE_MASKS[shape]
+    SetMask(icon, iconMask, maskFile)
+    SetMask(background, backgroundMask, maskFile)
+
+    -- The action button frame only fits a square: other shapes get the thin
+    -- border instead. The soft circle fades out, so it has no border at all.
+    local border = settings.border
+    if shape ~= "square" and border == "blizzard" then
+        border = "thin"
+    end
+    if shape == "soft" then
+        border = "none"
+    end
+    background:SetShown(border == "thin")
+    blizzardBorder:SetShown(border == "blizzard")
     blizzardBorder:SetSize(size * BLIZZARD_BORDER_SCALE, size * BLIZZARD_BORDER_SCALE)
-    glow:SetSize(size * 1.9, size * 1.9)
+
+    -- Round shapes get a round flash. It covers the icon instead of ringing
+    -- it, so it is dimmer.
+    if shape == "square" then
+        glow:SetTexture(GLOW_TEXTURE)
+        glow:SetVertexColor(1, 0.85, 0.3)
+        glow:SetSize(size * 1.9, size * 1.9)
+    else
+        glow:SetTexture(SOFT_GLOW)
+        glow:SetVertexColor(0.6, 0.5, 0.2)
+        glow:SetSize(size * 1.5, size * 1.5)
+    end
 end
 
 --- Applies every setting of the active profile to the frame.

@@ -9,7 +9,7 @@
           global   = { locale },
           profiles = { [name] = { point, relativePoint, x, y, size, locked,
                                   visibility, hideMounted, hideWithoutSuggestion,
-                                  alphaCombat, alphaOutOfCombat, fade, border,
+                                  alphaCombat, alphaOutOfCombat, fade, shape, border,
                                   cropIcon, glow, colorByState } },
           chars    = { ["Name-Realm"] = { mode } },
       }
@@ -40,6 +40,7 @@ Database.MAX_FADE = 1
 Database.MODES = { "account", "character", "spec" }
 Database.VISIBILITY_MODES = { "ALWAYS", "COMBAT", "HOSTILE", "INSTANCE" }
 Database.BORDERS = { "none", "thin", "blizzard" }
+Database.SHAPES = { "square", "rounded", "circle", "soft" }
 
 local DEFAULT_PROFILE = {
     point = "CENTER",
@@ -54,6 +55,7 @@ local DEFAULT_PROFILE = {
     alphaCombat = 1,
     alphaOutOfCombat = 0.6,
     fade = 0.2,             -- seconds; 0 shows and hides at once
+    shape = "square",       -- square, rounded, circle or soft (a circle that fades out)
     border = "thin",
     cropIcon = true,
     glow = true,            -- pulse when the suggestion changes
@@ -115,6 +117,9 @@ local function SanitizeProfile(profile)
     end
     if not tContains(Database.BORDERS, profile.border) then
         profile.border = DEFAULT_PROFILE.border
+    end
+    if not tContains(Database.SHAPES, profile.shape) then
+        profile.shape = DEFAULT_PROFILE.shape
     end
 end
 

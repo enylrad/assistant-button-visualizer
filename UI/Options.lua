@@ -173,15 +173,23 @@ function Options:BuildPanel(panel)
     widgets.alphaOutOfCombat = Widgets.CreateSlider(content, "OPT_ALPHA_OOC", 0, 1, 0.05, Percent, ProfileValue("alphaOutOfCombat"))
     widgets.alphaOutOfCombat:SetPoint("TOPLEFT", x + COLUMN, y)
     y = y - 56
-    Caption("OPT_BORDER")
+    Caption("OPT_SHAPE")
+    Caption("OPT_BORDER", COLUMN)
     y = y - 18
+    widgets.shape = Widgets.CreateDropdown(content, 220, ListOptions(Database.SHAPES, "SHAPE_"), ProfileValue("shape"))
+    widgets.shape:SetPoint("TOPLEFT", x, y)
     widgets.border = Widgets.CreateDropdown(content, 220, ListOptions(Database.BORDERS, "BORDER_"), ProfileValue("border"))
-    widgets.border:SetPoint("TOPLEFT", x, y)
-    Checkbox("cropIcon", "OPT_CROP", COLUMN)
-    y = y - LINE
+    widgets.border:SetPoint("TOPLEFT", x + COLUMN, y)
+    y = y - 30
+    local shapeHelp = Widgets.CreateText(content, "GameFontDisableSmall", "OPT_SHAPE_HELP")
+    shapeHelp:SetPoint("TOPLEFT", x, y)
+    shapeHelp:SetWidth(CONTENT_WIDTH)
+    shapeHelp:SetWordWrap(true)
+    y = y - 22
+    Checkbox("cropIcon", "OPT_CROP")
     Checkbox("glow", "OPT_GLOW", COLUMN)
     y = y - LINE
-    Checkbox("colorByState", "OPT_COLOR_BY_STATE", COLUMN)
+    Checkbox("colorByState", "OPT_COLOR_BY_STATE")
     y = y - LINE - 12
 
     ------------------------------------------------------------------ Position
@@ -231,7 +239,7 @@ function Options:Refresh()
     Widgets.RefreshTexts()
     for _, name in ipairs({
         "mode", "copy", "visibility", "hideMounted", "hideWithoutSuggestion", "size", "fade",
-        "alphaCombat", "alphaOutOfCombat", "border", "cropIcon", "glow", "colorByState",
+        "alphaCombat", "alphaOutOfCombat", "shape", "border", "cropIcon", "glow", "colorByState",
         "locked", "language",
     }) do
         widgets[name]:Refresh()

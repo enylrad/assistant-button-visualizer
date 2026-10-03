@@ -23,8 +23,9 @@ its icon. Nothing is placed on your action bars.
   specialization, with copy and reset.
 - **Visibility**: always, in combat, with a hostile target or in instances; optionally
   hidden while mounted and when there is no suggestion.
-- **Look**: icon size, opacity in and out of combat, fade time, thin or action button
-  border, cropped icon edges and a flash when the suggestion changes.
+- **Look**: icon shape (square, rounded, circle or a soft circle that fades out), icon
+  size, opacity in and out of combat, fade time, thin or action button border, cropped
+  icon edges and a flash when the suggestion changes.
 - **Range and usability tint**: red out of range, blue without enough power and grey
   when it cannot be used, like the default action buttons.
 - **Addon language**: game language, English or Spanish.
@@ -80,8 +81,9 @@ conectar, si sigue ahí.
   y restablecer.
 - **Visibilidad**: siempre, en combate, con un objetivo hostil o en instancias; opcional
   ocultarlo en montura y cuando no hay sugerencia.
-- **Aspecto**: tamaño, opacidad dentro y fuera de combate, tiempo de fundido, borde fino o
-  de botón de acción, icono recortado y destello al cambiar la sugerencia.
+- **Aspecto**: forma del icono (cuadrado, redondeado, círculo o círculo difuminado),
+  tamaño, opacidad dentro y fuera de combate, tiempo de fundido, borde fino o de botón de
+  acción, icono recortado y destello al cambiar la sugerencia.
 - **Color según alcance y uso**: rojo fuera de alcance, azul sin recurso suficiente y gris
   cuando no se puede usar.
 - **Idioma del addon**: el del juego, inglés o español.
