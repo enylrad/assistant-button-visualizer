@@ -163,36 +163,41 @@ function Options:BuildPanel(panel)
     widgets.colorByState = CreateCheckbox(panel, "OPT_COLOR_BY_STATE",
         function() return ns.settings.colorByState end,
         function(value) ns.settings.colorByState = value; Notify() end)
-    widgets.colorByState:SetPoint("TOPLEFT", x + 296, -80)
+    widgets.colorByState:SetPoint("TOPLEFT", x - 4, -128)
+
+    widgets.hideMounted = CreateCheckbox(panel, "OPT_HIDE_MOUNTED",
+        function() return ns.settings.hideMounted end,
+        function(value) ns.settings.hideMounted = value; Notify() end)
+    widgets.hideMounted:SetPoint("TOPLEFT", x - 4, -104)
 
     local visibilityCaption = CreateText(panel, "GameFontNormal", "OPT_VISIBILITY")
-    visibilityCaption:SetPoint("TOPLEFT", x, -120)
+    visibilityCaption:SetPoint("TOPLEFT", x, -168)
     widgets.visibility = CreateDropdown(panel, 200, VisibilityOptions,
         function() return ns.settings.visibility end,
         function(value) ns.settings.visibility = value; Notify() end)
-    widgets.visibility:SetPoint("TOPLEFT", x, -138)
+    widgets.visibility:SetPoint("TOPLEFT", x, -186)
 
     local languageCaption = CreateText(panel, "GameFontNormal", "OPT_LANGUAGE")
-    languageCaption:SetPoint("TOPLEFT", x + 300, -120)
+    languageCaption:SetPoint("TOPLEFT", x + 300, -168)
     widgets.language = CreateDropdown(panel, 200, LocaleOptions,
         function() return ns.settings.locale end,
         function(value)
             ns.settings.locale = value
             ns:SetLocale(value)
         end)
-    widgets.language:SetPoint("TOPLEFT", x + 300, -138)
+    widgets.language:SetPoint("TOPLEFT", x + 300, -186)
 
     widgets.alpha = CreateSlider(panel, "OPT_OPACITY", 0.1, 1, 0.05,
         function(value) return ("%d%%"):format(ns.Round(value * 100)) end,
         function() return ns.settings.alpha end,
         function(value) ns.settings.alpha = value; Notify() end)
-    widgets.alpha:SetPoint("TOPLEFT", x, -182)
+    widgets.alpha:SetPoint("TOPLEFT", x, -230)
 
     widgets.size = CreateSlider(panel, "OPT_SIZE", Database.MIN_SIZE, Database.MAX_SIZE, 1,
         function(value) return tostring(ns.Round(value)) end,
         function() return ns.settings.size end,
         function(value) ns.settings.size = value; Notify() end)
-    widgets.size:SetPoint("TOPLEFT", x + 300, -182)
+    widgets.size:SetPoint("TOPLEFT", x + 300, -230)
 
     ------------------------------------------------------------------ Slot
     -- The slot is staged and applied with a button: moving the slider would
@@ -202,9 +207,11 @@ function Options:BuildPanel(panel)
         function() return self.pendingSlot or ns.settings.slot end,
         function(value)
             self.pendingSlot = value
-            widgets.apply:SetEnabled(value ~= ns.settings.slot)
+            if widgets.apply then
+                widgets.apply:SetEnabled(value ~= ns.settings.slot)
+            end
         end)
-    widgets.slot:SetPoint("TOPLEFT", x, -246)
+    widgets.slot:SetPoint("TOPLEFT", x, -294)
 
     widgets.apply = CreateButton(panel, 100, "OPT_APPLY", function()
         local slot = self.pendingSlot
@@ -218,7 +225,7 @@ function Options:BuildPanel(panel)
     widgets.apply:SetPoint("BOTTOMLEFT", widgets.slot, "BOTTOMRIGHT", 10, -1)
 
     local slotHelp = CreateText(panel, "GameFontDisableSmall", "OPT_SLOT_HELP")
-    slotHelp:SetPoint("TOPLEFT", x, -294)
+    slotHelp:SetPoint("TOPLEFT", x, -342)
     slotHelp:SetWidth(CONTENT_WIDTH)
     slotHelp:SetWordWrap(true)
 
@@ -226,7 +233,7 @@ function Options:BuildPanel(panel)
     widgets.install = CreateButton(panel, 180, "OPT_INSTALL", function()
         Installer:Install(true)
     end)
-    widgets.install:SetPoint("TOPLEFT", x, -350)
+    widgets.install:SetPoint("TOPLEFT", x, -398)
 
     widgets.resetPosition = CreateButton(panel, 180, "OPT_RESET_POSITION", function()
         Database:ResetPosition()
@@ -245,6 +252,7 @@ function Options:Refresh()
     end
     widgets.locked:Refresh()
     widgets.colorByState:Refresh()
+    widgets.hideMounted:Refresh()
     widgets.visibility:GenerateMenu()
     widgets.language:GenerateMenu()
     widgets.alpha:Refresh()

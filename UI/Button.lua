@@ -92,12 +92,31 @@ frame:SetScript("OnUpdate", function(_, elapsed)
     end
 end)
 
---- Returns true when the current visibility mode wants the button shown.
-function Button:ShouldShow()
-    if ns.settings.visibility == "COMBAT" then
-        return inCombat
+--- Returns true when the player targets something alive that can be attacked.
+local function HasHostileTarget()
+    if not UnitExists("target") or UnitIsDeadOrGhost("target") then
+        return false
     end
-    return true
+    local canAttack = UnitCanAttack("player", "target")
+    return not Compat.IsSecret(canAttack) and canAttack == true
+end
+
+-- Visibility modes: return true when the button must be shown.
+local VISIBILITY_TESTS = {
+    ALWAYS = function() return true end,
+    COMBAT = function() return inCombat end,
+    HOSTILE = HasHostileTarget,
+    INSTANCE = function() return IsInInstance() == true end,
+}
+
+--- Returns true when the current settings want the button shown.
+function Button:ShouldShow()
+    local settings = ns.settings
+    if settings.hideMounted and IsMounted() and not inCombat then
+        return false
+    end
+    local test = VISIBILITY_TESTS[settings.visibility] or VISIBILITY_TESTS.ALWAYS
+    return test()
 end
 
 --- Shows or hides the button and refreshes its icon.
@@ -147,6 +166,13 @@ function Button:OnLogin()
         Refresh()
     end)
     ns:RegisterEvent("PLAYER_ENTERING_WORLD", Refresh)
+    ns:RegisterEvent("PLAYER_TARGET_CHANGED", Refresh)
+    ns:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED", Refresh)
+    ns:RegisterEvent("UNIT_FLAGS", function(_, unit)
+        if unit == "target" then
+            Refresh()
+        end
+    end)
     ns:RegisterEvent("ACTIONBAR_SLOT_CHANGED", function(_, slot)
         if slot == 0 or slot == ns.settings.slot then
             Refresh()

@@ -7,7 +7,7 @@
           schema   = <number>,
           settings = {
               point, relativePoint, x, y,  -- button position on UIParent
-              locked, visibility, alpha, size, slot, colorByState, locale,
+              locked, visibility, hideMounted, alpha, size, slot, colorByState, locale,
           },
       }
 
@@ -27,7 +27,7 @@ Database.MIN_SIZE = 16
 Database.MAX_SIZE = 128
 
 -- Visibility modes, in the order shown in the options.
-Database.VISIBILITY_MODES = { "ALWAYS", "COMBAT" }
+Database.VISIBILITY_MODES = { "ALWAYS", "COMBAT", "HOSTILE", "INSTANCE" }
 
 local DEFAULT_SETTINGS = {
     point = "CENTER",
@@ -36,6 +36,7 @@ local DEFAULT_SETTINGS = {
     y = 0,
     locked = false,
     visibility = "ALWAYS",
+    hideMounted = false,
     alpha = 0.3,
     size = 64,
     slot = 88,          -- a slot outside the default visible bars
