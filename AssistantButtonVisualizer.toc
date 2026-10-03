@@ -1,10 +1,10 @@
 ## Interface: 120000, 120001
-## Title: Assistant Button Visualizer
-## Notes: Real-time visual interface for the Assistant Button rotation logic.
-## Author: Enylrad
+## Title: |cff3fd47bAssistant Button|r Visualizer
+## Notes: Shows the Assistant Button suggestion anywhere on the screen.
+## Notes-esES: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
+## Notes-esMX: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
+## Author: enylrad
 ## Version: 1.1.1
-## SavedVariables: AssistantButtonVisualizerDB
-
 ## Category: User Interface
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
@@ -17,10 +17,20 @@
 ## Category-ruRU: Интерфейс пользователя
 ## Category-zhCN: 用户界面
 ## Category-zhTW: 使用者介面
+## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
+## SavedVariables: AssistantButtonVisualizerDB
+## AddonCompartmentFunc: AssistantButtonVisualizer_OnAddonCompartmentClick
 
+Core\Core.lua
 
 Locales\enUS.lua
 Locales\esES.lua
+Core\Locale.lua
+Core\Compat.lua
+Core\Database.lua
+Core\Installer.lua
 
-core.lua
-options.lua
+UI\Button.lua
+UI\Options.lua
+
+AssistantButtonVisualizer.lua

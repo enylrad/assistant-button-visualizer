@@ -1,34 +1,41 @@
-local _, addonTable = ...
-local L = {}
-addonTable.L = L
+--[[----------------------------------------------------------------------------
+    AssistantButtonVisualizer - English strings (also the fallback for missing translations)
+------------------------------------------------------------------------------]]
 
--- English (Default)
-L["FRAME_LOCKED"] = " Frame Locked."
-L["FRAME_UNLOCKED"] = " Frame Unlocked."
-L["CLEARED_OLD_SLOT"] = " Cleared old slot "
-L["CANNOT_CLEAR_COMBAT"] = " Cannot clear old slot %d while in combat."
-L["SLOT_CHANGED_PENDING"] = " Slot changed to %d. Re-installation pending combat end."
-L["SPELL_INSTALLED"] = " Spell installed to slot "
-L["ERROR_INVALID_SPELL"] = " Error: Invalid Spell ID or spell not learned."
-L["POSITION_RESET"] = " Position reset to center."
-L["FORCING_MANUAL"] = " Forcing manual check/installation..."
-L["COMMANDS_LIST"] = " Commands:|r"
-L["CMD_RESET_DESC"] = "Resets the frame position to the center."
-L["CMD_INSTALL_DESC"] = "Checks slot %d and installs the spell if missing."
+local _, ns = ...
 
--- Options
-L["TITLE"] = "Assistant Button Visualizer"
-L["DESCRIPTION"] = "Configure the Assistant Button visualizer settings."
-L["LOCK_POSITION"] = "Lock Position"
-L["LOCK_POSITION_DESC"] = "Lock the button frame to prevent accidental movement."
-L["VISIBILITY_MODE"] = "Visibility Mode"
-L["IN_COMBAT"] = "In Combat"
-L["ALWAYS"] = "Always"
-L["VISIBILITY_SET"] = " Visibility set to: "
-L["OPACITY"] = "Opacity"
-L["ICON_SIZE"] = "Icon Size"
-L["ACTION_SLOT"] = "Action Slot"
-L["SLOT_TOOLTIP"] = "Select the action slot (1-120) where the ability will be placed.\nCommon slots:\nBar 1: 1-12\nBar 2: 13-24\nBar 3: 25-36\nBar 4: 37-48\nBar 5: 49-60\nBar 6: 61-72"
-L["APPLY"] = "Apply"
-L["APPLIED_NEW_SLOT"] = " Applied new slot: %d"
-L["SLOT_HELP"] = "Standard bars use 1-120. We recommend using a high slot (like 80+) that isn't on your visible bars to avoid overwriting your icons."
+ns.Locales = ns.Locales or {}
+
+ns.Locales.enUS = {
+    -- General
+    SPELL_INSTALLED = "spell placed in action slot |cffffd200%d|r.",
+    CLEARED_OLD_SLOT = "cleared the previous action slot |cffffd200%d|r.",
+    SLOT_CHANGED_PENDING = "action slot changed to |cffffd200%d|r. The spell will be moved when combat ends.",
+    ERROR_INVALID_SPELL = "the Assistant Button spell is not available for this character.",
+    POSITION_RESET = "button moved back to the center of the screen.",
+    FORCING_MANUAL = "placing the spell in its action slot...",
+    APPLIED_NEW_SLOT = "now using action slot |cffffd200%d|r.",
+    HELP_HEADER = "commands:",
+    HELP_OPTIONS = "|cffffd200/abv|r - open the options",
+    HELP_RESET = "|cffffd200/abv reset|r - move the button back to the center",
+    HELP_INSTALL = "|cffffd200/abv install|r - place the spell in action slot %d",
+    HELP_HELP = "|cffffd200/abv help|r - show this help",
+
+    -- Options
+    OPTIONS_SUBTITLE = "Shows the Assistant Button suggestion anywhere on the screen. Drag the button to move it while it is unlocked.",
+    OPT_LOCK = "Lock position (also lets clicks go through)",
+    OPT_VISIBILITY = "Show the button",
+    VISIBILITY_ALWAYS = "Always",
+    VISIBILITY_COMBAT = "In combat",
+    OPT_OPACITY = "Opacity",
+    OPT_SIZE = "Icon size",
+    OPT_SLOT = "Action slot",
+    OPT_APPLY = "Apply",
+    OPT_SLOT_HELP = "The spell is kept in this action slot (1-120) so the button can mirror it. Pick one that is not on your visible bars, such as 80 or higher, so none of your icons is replaced. Bars 1 to 6 use slots 1-72.",
+    OPT_INSTALL = "Place the spell now",
+    OPT_RESET_POSITION = "Center the button",
+    OPT_LANGUAGE = "Addon language",
+    LOCALE_auto = "Game language",
+    LOCALE_enUS = "English",
+    LOCALE_esES = "Español",
+}

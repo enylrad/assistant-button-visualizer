@@ -1,34 +1,41 @@
-local _, addonTable = ...
-local L = addonTable.L
+--[[----------------------------------------------------------------------------
+    AssistantButtonVisualizer - Spanish strings (esES, also used for esMX)
+------------------------------------------------------------------------------]]
 
-if GetLocale() == "esES" or GetLocale() == "esMX" then
-    L["FRAME_LOCKED"] = " Marco bloqueado."
-    L["FRAME_UNLOCKED"] = " Marco desbloqueado."
-    L["CLEARED_OLD_SLOT"] = " Ranura antigua limpiada "
-    L["CANNOT_CLEAR_COMBAT"] = " No se puede limpiar la ranura antigua %d en combate."
-    L["SLOT_CHANGED_PENDING"] = " Ranura cambiada a %d. Reinstalación pendiente al finalizar combate."
-    L["SPELL_INSTALLED"] = " Hechizo instalado en la ranura "
-    L["ERROR_INVALID_SPELL"] = " Error: ID de hechizo inválido o hechizo no aprendido."
-    L["POSITION_RESET"] = " Posición restablecida al centro."
-    L["FORCING_MANUAL"] = " Forzando comprobación/instalación manual..."
-    L["COMMANDS_LIST"] = " Comandos:|r"
-    L["CMD_RESET_DESC"] = "Restablece la posición del marco al centro."
-    L["CMD_INSTALL_DESC"] = "Comprueba la ranura %d e instala el hechizo si falta."
+local _, ns = ...
+
+ns.Locales = ns.Locales or {}
+
+ns.Locales.esES = {
+    -- General
+    SPELL_INSTALLED = "hechizo colocado en la casilla de acción |cffffd200%d|r.",
+    CLEARED_OLD_SLOT = "se ha vaciado la casilla de acción anterior |cffffd200%d|r.",
+    SLOT_CHANGED_PENDING = "casilla de acción cambiada a |cffffd200%d|r. El hechizo se moverá al terminar el combate.",
+    ERROR_INVALID_SPELL = "el hechizo del Botón Asistente no está disponible para este personaje.",
+    POSITION_RESET = "el botón ha vuelto al centro de la pantalla.",
+    FORCING_MANUAL = "colocando el hechizo en su casilla de acción...",
+    APPLIED_NEW_SLOT = "ahora se usa la casilla de acción |cffffd200%d|r.",
+    HELP_HEADER = "comandos:",
+    HELP_OPTIONS = "|cffffd200/abv|r - abre las opciones",
+    HELP_RESET = "|cffffd200/abv reset|r - devuelve el botón al centro",
+    HELP_INSTALL = "|cffffd200/abv install|r - coloca el hechizo en la casilla de acción %d",
+    HELP_HELP = "|cffffd200/abv help|r - muestra esta ayuda",
 
     -- Options
-    L["TITLE"] = "Assistant Button Visualizer"
-    L["DESCRIPTION"] = "Configura las opciones del visualizador del botón asistente."
-    L["LOCK_POSITION"] = "Bloquear Posición"
-    L["LOCK_POSITION_DESC"] = "Bloquea el marco para prevenir movimientos accidentales."
-    L["VISIBILITY_MODE"] = "Modo de Visibilidad"
-    L["IN_COMBAT"] = "En Combate"
-    L["ALWAYS"] = "Siempre"
-    L["VISIBILITY_SET"] = " Visibilidad establecida a: "
-    L["OPACITY"] = "Opacidad"
-    L["ICON_SIZE"] = "Tamaño del Icono"
-    L["ACTION_SLOT"] = "Ranura de Acción"
-    L["SLOT_TOOLTIP"] = "Selecciona la ranura de acción (1-120) donde se colocará la habilidad.\nRanuras comunes:\nBarra 1: 1-12\nBarra 2: 13-24\nBarra 3: 25-36\nBarra 4: 37-48\nBarra 5: 49-60\nBarra 6: 61-72"
-    L["APPLY"] = "Aplicar"
-    L["APPLIED_NEW_SLOT"] = " Nueva ranura aplicada: %d"
-    L["SLOT_HELP"] = "Las barras estándar usan 1-120. Recomendamos usar una ranura alta (como 80+) que no esté en tus barras visibles para evitar sobrescribir tus iconos."
-end
+    OPTIONS_SUBTITLE = "Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla. Arrastra el botón para moverlo mientras esté desbloqueado.",
+    OPT_LOCK = "Bloquear posición (los clics también lo atraviesan)",
+    OPT_VISIBILITY = "Mostrar el botón",
+    VISIBILITY_ALWAYS = "Siempre",
+    VISIBILITY_COMBAT = "En combate",
+    OPT_OPACITY = "Opacidad",
+    OPT_SIZE = "Tamaño del icono",
+    OPT_SLOT = "Casilla de acción",
+    OPT_APPLY = "Aplicar",
+    OPT_SLOT_HELP = "El hechizo se guarda en esta casilla de acción (1-120) para que el botón pueda reflejarlo. Elige una que no esté en tus barras visibles, como la 80 o superior, para no sustituir ninguno de tus iconos. Las barras 1 a 6 usan las casillas 1-72.",
+    OPT_INSTALL = "Colocar el hechizo ahora",
+    OPT_RESET_POSITION = "Centrar el botón",
+    OPT_LANGUAGE = "Idioma del addon",
+    LOCALE_auto = "Idioma del juego",
+    LOCALE_enUS = "English",
+    LOCALE_esES = "Español",
+}
