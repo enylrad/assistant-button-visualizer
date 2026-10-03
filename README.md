@@ -1,58 +1,96 @@
 # Assistant Button Visualizer
 
-## English
+Shows the suggestion of Blizzard's **Assistant Button** (Single-Button Assistant) anywhere
+on your screen, without moving your action bars.
 
-**Assistant Button Visualizer** is a World of Warcraft addon designed to help you visualize a specific rotation with Assistant Blizzard Button reference anywhere on your screen. 
+Supports **World of Warcraft retail** (Midnight).
 
-It mirrors a specific action bar slot ensuring you can place your rotation helper exactly where you need it, without moving your main action bars.
+## How it works
 
-### Features
-*   **Movable Frame:** Drag and drop the preview button to any location on your screen.
-*   **Locking:** Lock the frame in place to prevent accidental movement.
-*   **Opacity Control:** Adjust the transparency of the visualizer button.
-*   **Icon Size:** Adjust the size of the visualizer button.
-*   **Custom Slot:** Select which action bar slot (1-120) the addon should use to ghost the ability.
+The Assistant Button spell is kept in an action slot that is not on your visible bars
+(slot 88 by default). The visualizer mirrors that slot as a free icon you can drag
+wherever you want: next to your character, under your target frame, in the middle of
+the screen...
 
-### Commands
-*   `/abv reset` - Resets the button position to the center of the screen.
-*   `/abv install` - Manually checks and installs the spell to the hidden slot if missing.
+The spell is placed on login and after talent or specialization changes. A slot that
+already holds a spell is left alone, so forms and stances never cause it to be placed
+again. Action slots cannot be changed in combat: a change requested then is done as
+soon as combat ends.
 
-### Configuration
-You can configure the addon via the Interface Options menu:
-*   **Lock Position:** Check to disable dragging.
-*   **Visibility Mode:** Toggle between "Always" and "In Combat".
-*   **Opacity:** Slider to adjust the button transparency (10% to 100%).
-*   **Icon Size:** Slider to adjust the button size (16 to 128).
-*   **Action Slot:** Select a slot between 1 and 120. Use the **Apply** button to save changes. 
-    > [!TIP]
-    > We recommend using a high slot (80+) that isn't on your visible bars to avoid overwriting your icons.
+## Features
+
+- **Movable button**: drag it while it is unlocked; lock it to let clicks go through.
+- **Range and usability tint**: red out of range, blue without enough power and grey
+  when it cannot be used, like the default action buttons.
+- **Visibility**: always, in combat, with a hostile target or in instances, and
+  optionally hidden while mounted out of combat.
+- **Opacity** (10% to 100%) and **icon size** (16 to 128).
+- **Action slot**: any slot from 1 to 120, applied with a button so the slider never
+  replaces the icons it passes over.
+- **Addon language**: game language, English or Spanish.
+
+## Options
+
+`/abv` (or Game Menu → Options → AddOns → Assistant Button Visualizer, or the minimap
+addons menu).
+
+> [!TIP]
+> Pick an action slot that is not on your visible bars, such as 80 or higher, so none
+> of your icons is replaced. Bars 1 to 6 use slots 1-72.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| `/abv` | Open the options. |
+| `/abv reset` | Move the button back to the center of the screen. |
+| `/abv install` | Place the spell in its action slot, replacing what is there. |
+| `/abv help` | List the commands. |
+
+## Development
+
+```powershell
+# Link the working copy into every installed WoW flavor (no admin rights needed)
+./tools/link-wow.ps1
+
+# Build AssistantButtonVisualizer-<version>.zip, ready to share
+./tools/package.ps1
+```
+
+## License
+
+MIT
 
 ---
 
 ## Español
 
-**Assistant Button Visualizer** es un addon de World of Warcraft diseñado para ayudarte a visualizar una rotación específica utilizando el Botón Asistente de Blizzard como referencia en cualquier lugar de tu pantalla.
+Muestra la sugerencia del **Botón Asistente** de Blizzard en cualquier parte de la
+pantalla, sin mover tus barras de acción.
 
-El addon replica una casilla específica de la barra de acción, permitiéndote colocar tu ayuda de rotación exactamente donde la necesites, sin tener que mover tus barras de acción principales.
+El hechizo del Botón Asistente se guarda en una casilla de acción que no está en tus
+barras visibles (la 88 por defecto) y el visualizador la refleja como un icono que
+puedes arrastrar adonde quieras. Se coloca al conectar y al cambiar de talentos o
+especialización; si la casilla ya tiene un hechizo no se toca. En combate no se pueden
+cambiar las casillas: el cambio se hace al terminar el combate.
 
 ### Características
-*   **Marco Movible:** Arrastra y suelta el botón de vista previa en cualquier lugar de tu pantalla.
-*   **Modos de Visibilidad:** Elige si el botón debe estar siempre visible o solo durante el combate.
-*   **Bloqueo:** Bloquea el marco en su sitio para evitar movimientos accidentales.
-*   **Control de Opacidad:** Ajusta la transparencia del botón del visualizador.
-*   **Control de Tamaño:** Ajusta el tamaño del botón del visualizador.
-*   **Casilla Personalizada:** Selecciona qué casilla de la barra de acción (1-120) debe usar el addon.
+
+- **Botón movible**: arrástralo mientras esté desbloqueado; bloquéalo para que los clics
+  lo atraviesen.
+- **Color según alcance y uso**: rojo fuera de alcance, azul sin recurso suficiente y gris
+  cuando no se puede usar.
+- **Visibilidad**: siempre, en combate, con un objetivo hostil o en instancias, y
+  opcionalmente oculto en montura fuera de combate.
+- **Opacidad** (10% a 100%) y **tamaño del icono** (16 a 128).
+- **Casilla de acción**: cualquiera de la 1 a la 120, aplicada con un botón.
+- **Idioma del addon**: el del juego, inglés o español.
 
 ### Comandos
-*   `/abv reset` - Restablece la posición del botón al centro de la pantalla.
-*   `/abv install` - Comprueba manualmente e instala el hechizo en la casilla oculta si falta.
 
-### Configuración
-Puedes configurar el addon a través del menú de opciones de la interfaz:
-*   **Bloquear Posición (Lock Position):** Marca para desactivar el arrastre.
-*   **Modo de Visibilidad (Visibility Mode):** Cambia entre "Siempre" (Always) y "En Combate" (In Combat).
-*   **Opacidad (Opacity):** Deslizador para ajustar la transparencia del botón (10% a 100%).
-*   **Tamaño del Icono (Icon Size):** Deslizador para ajustar el tamaño del botón (16 a 128).
-*   **Casilla de Acción (Action Slot):** Selecciona una casilla entre 1 y 120. Usa el botón **Apply** para guardar los cambios.
-    > [!TIP]
-    > Recomendamos usar una casilla alta (80+) que no esté en tus barras visibles para evitar sobrescribir tus iconos.
+| Comando | Descripción |
+| --- | --- |
+| `/abv` | Abre las opciones. |
+| `/abv reset` | Devuelve el botón al centro de la pantalla. |
+| `/abv install` | Coloca el hechizo en su casilla, sustituyendo lo que haya. |
+| `/abv help` | Muestra los comandos. |
