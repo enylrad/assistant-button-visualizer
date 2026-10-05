@@ -4,7 +4,7 @@
 ## Notes-esES: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
 ## Notes-esMX: Muestra la sugerencia del Botón Asistente en cualquier parte de la pantalla.
 ## Author: enylrad
-## Version: 2.0.0
+## Version: 2.0.1
 ## Category: User Interface
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
