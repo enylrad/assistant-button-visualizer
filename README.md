@@ -3,8 +3,7 @@
 Shows the spell Blizzard's **Assistant Button** (Single-Button Assistant) suggests anywhere
 on your screen, as a free icon you can place where your eyes already are.
 
-Supports **World of Warcraft retail** (Midnight), **Classic** (Vanilla, TBC, Mists) and
-**WoW: Forever**.
+Supports **World of Warcraft retail** (Midnight).
 
 ## How it works
 
@@ -17,8 +16,8 @@ its icon. Nothing is placed on your action bars.
 
 ## Features
 
-- **Movable button**: from the game's Edit Mode (retail and Forever), with `/abv move` or
-  the *Move* button in the options. Lock it to let clicks go through.
+- **Movable button**: from the game's Edit Mode, with `/abv move` or the *Move*
+  button in the options. Lock it to let clicks go through.
 - **Profiles**: one shared by every character, one per character or one per
   specialization, with copy and reset.
 - **Visibility**: always, in combat, with a hostile target or in instances; optionally
@@ -65,8 +64,7 @@ GNU Lesser General Public License v3.0 (LGPL-3.0). See [LICENSE](LICENSE) for th
 Muestra en cualquier parte de la pantalla el hechizo que sugiere el **Botón Asistente**
 de Blizzard, como un icono que puedes colocar donde ya miras.
 
-Compatible con **World of Warcraft retail** (Midnight), **Classic** (Vanilla, TBC, Mists)
-y **WoW: Forever**.
+Compatible con **World of Warcraft retail** (Midnight).
 
 El addon pregunta al sistema de combate asistido del juego qué hechizo sugiere y muestra
 su icono, sin colocar nada en tus barras. Las versiones 1.x guardaban el hechizo en una
@@ -75,8 +73,8 @@ conectar, si sigue ahí.
 
 ### Características
 
-- **Botón movible**: desde el Modo Edición del juego (retail y Forever), con `/abv move`
-  o con el botón *Mover* de las opciones. Bloquéalo para que los clics lo atraviesen.
+- **Botón movible**: desde el Modo Edición del juego, con `/abv move` o con el
+  botón *Mover* de las opciones. Bloquéalo para que los clics lo atraviesen.
 - **Perfiles**: uno compartido, uno por personaje o uno por especialización, con copiar
   y restablecer.
 - **Visibilidad**: siempre, en combate, con un objetivo hostil o en instancias; opcional

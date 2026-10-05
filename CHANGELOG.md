@@ -14,9 +14,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Profiles:** shared by every character, per character or per specialization, with copy and reset.
-- **Edit Mode:** the button can be moved from the game's Edit Mode (retail and Forever), with `/abv move` or with the Move button in the options, even when it is locked.
+- **Edit Mode:** the button can be moved from the game's Edit Mode, with `/abv move` or with the Move button in the options, even when it is locked.
 - **Look:** icon shape (square, rounded, circle or soft circle), thin or action button border, cropped icon edges, a flash when the suggestion changes, fade time and an option to hide the button when there is no suggestion.
-- **Classic and WoW: Forever support** (Vanilla, TBC and Mists).
 
 ## [2.0.0] - 2026-10-03 (Español)
 
@@ -30,9 +29,8 @@ All notable changes to this project will be documented in this file.
 
 ### Añadido
 - **Perfiles:** compartido, por personaje o por especialización, con copiar y restablecer.
-- **Modo Edición:** el botón se mueve desde el Modo Edición del juego (retail y Forever), con `/abv move` o con el botón Mover de las opciones, aunque esté bloqueado.
+- **Modo Edición:** el botón se mueve desde el Modo Edición del juego, con `/abv move` o con el botón Mover de las opciones, aunque esté bloqueado.
 - **Aspecto:** forma del icono (cuadrado, redondeado, círculo o círculo difuminado), borde fino o de botón de acción, icono recortado, destello al cambiar la sugerencia, tiempo de fundido y opción de ocultarlo cuando no hay sugerencia.
-- **Soporte para Classic y WoW: Forever** (Vanilla, TBC y Mists).
 
 ## [1.2.0] - 2026-10-03
 
